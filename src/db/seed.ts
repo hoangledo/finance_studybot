@@ -1,0 +1,52 @@
+import { SEED_CONCEPTS, SEED_EDGES } from '../content/concepts'
+import { newFsrsCard } from '../lib/srs'
+import type { Concept, Edge, StudyCard } from '../types'
+import { DEFAULT_PROFILE, type FinDB } from './db'
+
+/** Bump when seed content changes; new seed concepts/cards are merged in without touching user progress. */
+export const SEED_VERSION = 1
+
+export function buildSeed(now = Date.now()) {
+  const concepts: Concept[] = SEED_CONCEPTS.map((c) => ({
+    id: c.id,
+    title: c.title,
+    summary: c.summary,
+    domain: c.domain,
+    tags: [],
+    sourceUrls: c.sources,
+    isSeed: true,
+    createdAt: now,
+  }))
+  const cards: StudyCard[] = SEED_CONCEPTS.flatMap((c) =>
+    c.cards.map(([front, back, type], i) => ({
+      id: `${c.id}#${i}`,
+      conceptId: c.id,
+      type: type ?? 'basic',
+      front,
+      back,
+      fsrs: newFsrsCard(new Date(now)),
+      locked: true,
+      isSeed: true,
+      createdAt: now,
+    })),
+  )
+  const edges: Edge[] = SEED_EDGES.map(([from, to, type]) => ({ id: `${from}>${to}`, from, to, type }))
+  return { concepts, cards, edges }
+}
+
+export async function ensureSeeded(db: FinDB) {
+  const v = await db.meta.get('seedVersion')
+  if (v && (v.value as number) >= SEED_VERSION) return
+  const { concepts, cards, edges } = buildSeed()
+  await db.transaction('rw', [db.concepts, db.cards, db.edges, db.profile, db.meta], async () => {
+    // Only add what's missing so existing progress is preserved on content upgrades.
+    const existingConcepts = new Set(await db.concepts.toCollection().primaryKeys())
+    const existingCards = new Set(await db.cards.toCollection().primaryKeys())
+    const existingEdges = new Set(await db.edges.toCollection().primaryKeys())
+    await db.concepts.bulkPut(concepts.filter((c) => !existingConcepts.has(c.id)))
+    await db.cards.bulkPut(cards.filter((c) => !existingCards.has(c.id)))
+    await db.edges.bulkPut(edges.filter((e) => !existingEdges.has(e.id)))
+    if (!(await db.profile.get('me'))) await db.profile.put(DEFAULT_PROFILE)
+    await db.meta.put({ key: 'seedVersion', value: SEED_VERSION })
+  })
+}
