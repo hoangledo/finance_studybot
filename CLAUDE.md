@@ -1,6 +1,6 @@
 # FinQuest
 
-A gamified app for learning US personal finance and Bogleheads investing. It's a static React SPA with no backend: all user data lives in the browser (IndexedDB via Dexie). There's an optional Claude integration that uses the user's own API key.
+A gamified app for learning US personal finance and Bogleheads investing. It's a static React SPA. It works local-first: the app always reads and writes IndexedDB (Dexie). Signed-in users' data is synced to Supabase as one JSON snapshot per user. Guests stay local-only. There's an optional Claude integration that uses the user's own API key.
 
 ## Commands
 - `npm run dev`: Vite dev server. It's exposed on the LAN (`server.host: true`) and moves to the next free port if 5173 is taken.
@@ -23,6 +23,14 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
   - `hooks.ts`: live queries
   - `seed.ts`
   - `backup.ts`
+- `src/auth/`:
+  - `supabase.ts`: client, created from `NEXT_PUBLIC_SUPABASE_*` (or `VITE_SUPABASE_*`) env vars, exposed through `envPrefix` in `vite.config.ts`; `null` when they aren't set, which means guest-only
+  - `session.ts`: auth state and actions
+  - `sync.ts`: local ↔ cloud sync
+  - `syncLogic.ts`: pure sync decisions, with tests
+  - `AuthGate.tsx`: picks the database for the current identity
+  - `AuthPage.tsx`, `AccountCard.tsx`
+- `supabase/migrations/`: SQL for the `user_progress` table and its RLS policies.
 - `src/features/<area>/`: pages and feature components. `src/components/`: shared UI and the mascot.
 
 ## Rules that aren't obvious from the code
@@ -32,6 +40,15 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
 - **`awardXp` in `src/db/actions.ts` is the only place XP is granted.** It also handles the streak, daily goal, level-ups, avatar unlocks, the streak celebration and toasts. Route every XP source through it.
   - The combo and Money Lab quests need `recordCombo` / `recordToolUse` to be called.
 - **Adding a field to a stored row:** only bump the Dexie schema version if the field is indexed. For `Profile`, also add a default in `DEFAULT_PROFILE`. `useProfile` merges the defaults in so older saves keep working.
+- **Auth and data isolation:**
+  - Each identity gets its own IndexedDB: `finquest-guest` or `finquest-u-<userId>`.
+  - `db` in `src/db/db.ts` is a live `export let` binding that `openDb` swaps out. Never cache it in a module-level constant.
+  - Sync detects writes through Dexie's global `storagemutated` event, so new actions need no sync code.
+  - Sign-out flushes pending changes, then deletes that account's local database. The Anthropic key is scoped per identity and cleared on sign-out.
+  - The old pre-auth `finquest` database is intentionally ignored.
+- **Secrets:**
+  - Only the publishable/anon Supabase key may appear in `NEXT_PUBLIC_*` / `VITE_*` variables; security comes from RLS.
+  - Never commit `.env*` files (only `.env.example`). Never add the service_role key to the frontend.
 - **The Anthropic SDK is lazy-loaded.** Import from `features/ai/lazy.ts` (async wrappers) and `features/ai/settings.ts` (key and model in localStorage), never `features/ai/claude.ts` directly, so the SDK stays out of the main bundle.
   - The default model is `claude-opus-5`, with `fallbacks: 'default'` on Opus. Output uses structured JSON via `betaZodOutputFormat`.
 - **Content is US-specific.** Contribution limits are 2026 IRS figures and need yearly updates in `concepts.ts`. The app stores links to the Bogleheads and r/personalfinance wikis; it never scrapes them.
