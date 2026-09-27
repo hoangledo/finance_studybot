@@ -13,6 +13,7 @@ import { Ring } from '../../components/ui'
 import { Avatar } from '../avatar/Avatar'
 import { ACCESSORIES, ANIMALS, COLORS, isUnlocked, unlockLabel, type AvatarConfig } from '../avatar/parts'
 import { play } from '../gamify/sounds'
+import { AccountCard } from '../../auth/AccountCard'
 
 type Tab = 'animal' | 'color' | 'accessory'
 
@@ -31,6 +32,7 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-5">
+      <AccountCard />
       <div className="card overflow-hidden">
         <div className="h-24 bg-[linear-gradient(135deg,var(--sky),var(--grape))]" />
         <div className="-mt-14 flex flex-col items-center px-5 pb-6 text-center">

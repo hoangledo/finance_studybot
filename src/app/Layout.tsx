@@ -9,6 +9,9 @@ import { Celebrations } from '../features/gamify/Celebrations'
 import { GoalCard, GoalRing, MiniAvatar, ProfileCard, StreakBadge, StreakCard } from '../features/gamify/Hud'
 import { QuestsCard } from '../features/gamify/Quests'
 import { QuickAddModal, useQuickAdd } from '../features/library/QuickAdd'
+import { SyncBadge } from '../auth/AccountCard'
+import { openAuthFromGuest, useSession } from '../auth/session'
+import { supabaseConfigured } from '../auth/supabase'
 
 type Tone = 'brand' | 'sky' | 'coral' | 'gold' | 'grape' | 'muted'
 
@@ -39,6 +42,7 @@ export function Layout() {
   const loc = useLocation()
   const fullBleed = loc.pathname === '/map'
   const onboarded = useProfile().onboarded
+  const authStatus = useSession((st) => st.status)
   const showRail = !fullBleed && onboarded
 
   useEffect(() => {
@@ -98,6 +102,17 @@ export function Layout() {
           <Plus size={18} strokeWidth={3} /> Add concept
           <kbd className="ml-1 rounded-md bg-black/10 px-1.5 text-[10px]">N</kbd>
         </button>
+        <div className="mt-auto px-1 pt-6">
+          {authStatus === 'signedIn' ? (
+            <SyncBadge />
+          ) : (
+            supabaseConfigured && (
+              <button onClick={openAuthFromGuest} className="w-full rounded-2xl border-2 border-dashed border-gold p-3 text-left text-xs font-bold text-gold-ink hover:bg-gold-soft">
+                Guest mode · <span className="underline">create an account</span> to save your progress
+              </button>
+            )
+          )}
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

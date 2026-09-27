@@ -10,6 +10,8 @@ import { ensureSeeded } from '../../db/seed'
 import { PageHeader } from '../../components/ui'
 import { getApiKey, getModel, MODELS, saveAiSettings } from '../ai/settings'
 import { toast } from '../gamify/fx'
+import { AccountCard } from '../../auth/AccountCard'
+import { useSession } from '../../auth/session'
 import { isMuted, play, setMuted } from '../gamify/sounds'
 
 export function SettingsPage() {
@@ -19,6 +21,7 @@ export function SettingsPage() {
   const [model, setModel] = useState(getModel)
   const [showKey, setShowKey] = useState(false)
   const [muted, setMutedState] = useState(isMuted)
+  const signedIn = useSession((st) => st.status === 'signedIn')
   const [confirmReset, setConfirmReset] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -46,6 +49,7 @@ export function SettingsPage() {
     <>
       <PageHeader title="Settings" />
       <div className="space-y-5">
+        <AccountCard />
         <Section title="Appearance">
           <div className="inline-flex rounded-xl bg-surface-2 p-1">
             {(
@@ -99,7 +103,7 @@ export function SettingsPage() {
 
         <Section
           title="AI assist (optional)"
-          desc="Paste your Anthropic API key to draft concepts and cards from Bogleheads/Reddit excerpts and get “Explain like I'm new” summaries. The key is stored only in this browser and sent only to api.anthropic.com. Usage is billed to your Anthropic account."
+          desc="Paste your Anthropic API key to draft concepts and cards from Bogleheads/Reddit excerpts and get “Explain like I'm new” summaries. The key is stored only in this browser (never in your account) and sent only to api.anthropic.com. Signing out removes it. Usage is billed to your Anthropic account."
         >
           <div className="grid gap-3 sm:grid-cols-[1fr_220px]">
             <div className="relative">
@@ -149,7 +153,14 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="Backup" desc="Your data lives only in this browser. Export a backup file regularly, or to move to another device.">
+        <Section
+          title="Backup"
+          desc={
+            signedIn
+              ? 'Your progress is saved to your account automatically. You can also download a copy as a file.'
+              : 'Guest progress lives only in this browser. Export a backup file regularly, or create an account to save it automatically.'
+          }
+        >
           <div className="flex flex-wrap gap-2">
             <button className="btn-ghost" onClick={doExport}>
               <Download size={16} /> Export backup
@@ -174,7 +185,9 @@ export function SettingsPage() {
         <Section title="Danger zone">
           {confirmReset ? (
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span>This erases all progress, XP, and your own concepts. Export first!</span>
+              <span>
+                This erases all progress, XP, and your own concepts{signedIn ? ' — on every device signed in to this account' : ''}. Export first!
+              </span>
               <button
                 className="btn-danger"
                 onClick={async () => {
