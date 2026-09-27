@@ -27,7 +27,24 @@ export class FinDB extends Dexie {
   }
 }
 
-export const db = new FinDB()
+/**
+ * The active user's database. Each identity (guest, or one Supabase account) gets its own
+ * IndexedDB so progress never mixes on a shared browser. This is a live ES-module binding:
+ * importers always see the current database after `openDb` switches it.
+ */
+export let db = new FinDB(dbNameFor('guest'))
+
+export function dbNameFor(identity: 'guest' | { userId: string }) {
+  return identity === 'guest' ? 'finquest-guest' : `finquest-u-${identity.userId}`
+}
+
+export function openDb(name: string) {
+  // Reuse the current instance only if it is still usable (sign-out closes and deletes it).
+  if (db.name === name && db.isOpen()) return db
+  db.close()
+  db = new FinDB(name)
+  return db
+}
 
 export const DEFAULT_PROFILE: Profile = {
   id: 'me',
