@@ -1,7 +1,6 @@
-import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { db } from './db/db'
-import { ensureSeeded } from './db/seed'
+import { AuthGate } from './auth/AuthGate'
 import { Layout } from './app/Layout'
 import { HomePage } from './features/home/HomePage'
 import { PathPage } from './features/path/PathPage'
@@ -42,29 +41,9 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  const [ready, setReady] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    ensureSeeded(db)
-      .then(() => setReady(true))
-      .catch((e) => setError(String(e)))
-  }, [])
-
-  if (error)
-    return (
-      <div className="grid h-full place-items-center p-6 text-center">
-        <div>
-          <p className="font-display text-xl font-semibold">Couldn't open local storage</p>
-          <p className="mt-2 text-sm text-muted">{error}</p>
-        </div>
-      </div>
-    )
-  if (!ready)
-    return (
-      <div className="grid h-full place-items-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand border-t-transparent" />
-      </div>
-    )
-  return <RouterProvider router={router} />
+  return (
+    <AuthGate>
+      <RouterProvider router={router} />
+    </AuthGate>
+  )
 }
