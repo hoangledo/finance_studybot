@@ -49,6 +49,18 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
 - **Secrets:**
   - Only the publishable/anon Supabase key may appear in `NEXT_PUBLIC_*` / `VITE_*` variables; security comes from RLS.
   - Never commit `.env*` files (only `.env.example`). Never add the service_role key to the frontend.
+- **Money tracker:**
+  - Amounts are integer **cents** (`amountCents`). Format with `money()` and parse with `parseAmount()` from `src/lib/budget.ts`. Never use float dollars in storage.
+  - Pure logic (periods, `summarize`, `monthlyAverages`, recurring `occurrences`) lives in `src/lib/budget.ts`, with tests. Writes go through `src/db/moneyActions.ts`.
+  - Recurring occurrences have deterministic IDs (`${recurringId}@${date}`) and are created with `bulkPut`, so materializing is idempotent. Deleting one adds its date to the item's `skipped` list so it isn't recreated.
+  - Money tables (`transactions`, `categories`, `recurring`) were added in Dexie schema v2 and are included in the table list in `backup.ts`, so they sync with the account.
+  - The starter categories are in `src/content/categories.ts` and use stable IDs (seeded via `SEED_VERSION` 2).
+- **Money Lab inputs:**
+  - `Widget` takes `persist` (Money Lab only; lessons use fixed teaching defaults). Persisted inputs are saved in `meta` as `tool:<id>` via `useToolInputs`.
+  - `Slider` in `widgets/common.tsx` has a typeable box. Its `unit` is `money | percent | plain`, and percents are stored as fractions.
+- **Review sessions:**
+  - `useReviewSession` holds the shared session logic for classic and swipe (`SwipeDeck`) modes.
+  - `reviewCard` returns `{ next, logId }`, and `undoReview` restores the previous schedule. Re-rating an undone card earns no XP.
 - **The Anthropic SDK is lazy-loaded.** Import from `features/ai/lazy.ts` (async wrappers) and `features/ai/settings.ts` (key and model in localStorage), never `features/ai/claude.ts` directly, so the SDK stays out of the main bundle.
   - The default model is `claude-opus-5`, with `fallbacks: 'default'` on Opus. Output uses structured JSON via `betaZodOutputFormat`.
 - **Content is US-specific.** Contribution limits are 2026 IRS figures and need yearly updates in `concepts.ts`. The app stores links to the Bogleheads and r/personalfinance wikis; it never scrapes them.
