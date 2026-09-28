@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Check, Lock, Star } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { LESSONS, UNITS } from '../../content/lessons'
@@ -40,17 +41,40 @@ const WAVE = [0, 0.7, 1, 0.7, 0, -0.7, -1, -0.7]
 const px = (i: number) => W / 2 + WAVE[i % WAVE.length] * AMP
 const py = (i: number) => 84 + i * STEP
 
+/** Width of an element, kept up to date (used to scale the trail on narrow phones). */
+function useWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [width, setWidth] = useState(W)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, width] as const
+}
+
 export function PathPage() {
   const progress = useLessonProgress()
+  const next = progress ? nextLesson(progress) : undefined
+  const scrolled = useRef(false)
+
+  // Bring the next lesson into view once, so you don't have to hunt for it.
+  useEffect(() => {
+    if (!next || scrolled.current) return
+    scrolled.current = true
+    requestAnimationFrame(() => document.querySelector('[data-next-lesson]')?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+  }, [next])
+
   if (!progress) return null
-  const next = nextLesson(progress)
   const doneCount = LESSONS.filter((l) => progress[l.id]).length
 
   return (
     <>
       <div className="mb-6">
-        <h1 className="font-display text-3xl font-bold sm:text-4xl">Your Path</h1>
-        <p className="mt-1 text-sm text-muted">
+        <h1 className="font-display text-3xl font-bold max-md:sr-only sm:text-4xl">Your Path</h1>
+        <p className="text-sm text-muted md:mt-1">
           {doneCount} of {LESSONS.length} lessons · follows the r/personalfinance “Prime Directive”, then the Bogleheads way.
         </p>
       </div>
@@ -72,6 +96,8 @@ function UnitSection({ unitIndex, progress, nextId }: { unitIndex: number; progr
   const unitDone = done === lessons.length
   const n = lessons.length
   const height = py(n) + 40
+  const [fitRef, available] = useWidth<HTMLDivElement>()
+  const scale = Math.min(1, available / W)
 
   // Trail segments between consecutive stops (lessons, then the chest at index n)
   const segments = Array.from({ length: n }, (_, i) => {
@@ -92,7 +118,12 @@ function UnitSection({ unitIndex, progress, nextId }: { unitIndex: number; progr
         </div>
       </div>
 
-      <div className="relative mx-auto" style={{ width: W, maxWidth: '100%', height }}>
+      {/* The trail is laid out at 360px and scaled down to fit narrower screens. */}
+      <div ref={fitRef} className={clsx('w-full', scale < 1 && 'overflow-hidden')} style={{ height: height * scale }}>
+      <div
+        className={clsx('relative', scale < 1 ? 'origin-top-left' : 'mx-auto')}
+        style={{ width: W, height, transform: scale < 1 ? `scale(${scale})` : undefined }}
+      >
         <svg className="absolute inset-0" width={W} height={height} aria-hidden style={{ overflow: 'visible' }}>
           {segments.map((s, i) => (
             <path key={i} d={s.d} fill="none" stroke={s.lit ? 'var(--gold)' : 'var(--border)'} strokeWidth="9" strokeLinecap="round" strokeDasharray="1 18" />
@@ -134,6 +165,7 @@ function UnitSection({ unitIndex, progress, nextId }: { unitIndex: number; progr
               <button
                 onClick={() => (open ? navigate(`/lesson/${l.id}`) : toast({ kind: 'info', title: '🔒 Locked', body: 'Finish the earlier lessons first.' }))}
                 aria-label={`${l.title}${!open ? ' (locked)' : ''}`}
+                data-next-lesson={isNext || undefined}
                 className={clsx(
                   'absolute grid place-items-center text-3xl transition-transform active:translate-y-[6px]',
                   mission ? 'rotate-45 rounded-[26px]' : 'rounded-full',
@@ -180,6 +212,7 @@ function UnitSection({ unitIndex, progress, nextId }: { unitIndex: number; progr
         <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: px(n), top: py(n) }}>
           <Chest state={unitDone ? 'open' : 'locked'} size={64} />
         </div>
+      </div>
       </div>
     </section>
   )

@@ -1,5 +1,5 @@
-import { AnimatePresence, motion, Reorder } from 'framer-motion'
-import { Check, GripVertical, Layers, X } from 'lucide-react'
+import { AnimatePresence, motion, Reorder, useDragControls } from 'framer-motion'
+import { Check, ChevronDown, ChevronUp, GripVertical, Layers, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import clsx from 'clsx'
@@ -68,9 +68,9 @@ export function LessonPlayer() {
   }
 
   return (
-    <div className="flex min-h-full flex-col bg-bg">
-      <header className="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 pt-5">
-        <button onClick={() => navigate('/path')} className="rounded-xl p-1.5 text-muted hover:bg-surface-2" aria-label="Quit lesson">
+    <div className="flex h-full flex-col overflow-y-auto overscroll-contain bg-bg">
+      <header className="mx-auto flex w-full max-w-2xl items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top,0px)_+_12px)] sm:pt-5">
+        <button onClick={() => navigate('/path')} className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted hover:bg-surface-2" aria-label="Quit lesson">
           <X size={26} strokeWidth={3} />
         </button>
         <Bar value={(i + (verdict || result ? 1 : 0)) / lesson.steps.length} className="h-4 flex-1" />
@@ -89,7 +89,7 @@ export function LessonPlayer() {
         </AnimatePresence>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-44">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-6 pb-[calc(12rem_+_env(safe-area-inset-bottom,0px))] sm:pt-8">
         {result ? (
           <LessonDone lessonTitle={lesson.title} result={result} correct={correct} total={gradable} />
         ) : (
@@ -123,7 +123,7 @@ function Footer({ step, verdict, onContinue }: { step: LessonStep; verdict: Verd
       animate={{ y: 0 }}
       transition={{ type: 'spring', damping: 22, stiffness: 300 }}
       className={clsx(
-        'fixed inset-x-0 bottom-0 border-t-2 px-4 py-4',
+        'fixed inset-x-0 bottom-0 z-30 border-t-2 px-4 pt-4 pb-[max(env(safe-area-inset-bottom,0px),16px)]',
         !verdict && 'border-line bg-surface',
         verdict?.correct && 'border-brand bg-brand-soft',
         verdict && !verdict.correct && 'border-danger bg-danger-soft',
@@ -132,7 +132,7 @@ function Footer({ step, verdict, onContinue }: { step: LessonStep; verdict: Verd
       <div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center">
         {verdict && (
           <div className="flex flex-1 items-center gap-3">
-            <Cappy mood={verdict.correct ? 'cheer' : 'oops'} size={72} className="-my-2 shrink-0" />
+            <Cappy mood={verdict.correct ? 'cheer' : 'oops'} size={64} className="-my-2 shrink-0" />
             <div className="min-w-0">
               <div className={clsx('font-display text-xl font-bold', verdict.correct ? 'text-brand-ink' : 'text-danger-ink')}>{verdict.line}</div>
               <p className="mt-0.5 text-sm font-semibold">{verdict.explain}</p>
@@ -275,6 +275,68 @@ function Mcq({
   )
 }
 
+/** One rank row: drag only from the grip (so the page still scrolls on touch), or tap ↑ / ↓. */
+function RankRow({
+  item,
+  index,
+  total,
+  locked,
+  correctIndex,
+  onMove,
+}: {
+  item: string
+  index: number
+  total: number
+  locked: boolean
+  correctIndex: number
+  onMove: (d: -1 | 1) => void
+}) {
+  const controls = useDragControls()
+  const right = correctIndex === index
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{ scale: 1.03, rotate: -1, boxShadow: '0 12px 24px rgba(0,0,0,0.15)' }}
+      className={clsx(
+        'flex items-center gap-2 rounded-2xl border-2 border-b-4 bg-surface py-2 pr-2 pl-3 font-bold select-none',
+        !locked && 'border-line',
+        locked && right && 'border-brand bg-brand-soft',
+        locked && !right && 'border-danger bg-danger-soft',
+      )}
+    >
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-sky-soft text-xs font-extrabold text-sky-ink">{index + 1}</span>
+      <span className="min-w-0 flex-1 py-1 leading-snug">{item}</span>
+      {locked ? (
+        right ? (
+          <Check size={20} strokeWidth={3} className="mr-2 text-brand-ink" />
+        ) : (
+          <span className="mr-2 text-xs font-extrabold text-danger-ink">#{correctIndex + 1}</span>
+        )
+      ) : (
+        <>
+          <span className="flex flex-col">
+            <button className="grid h-8 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 disabled:opacity-25" onClick={() => onMove(-1)} disabled={index === 0} aria-label={`Move "${item}" up`}>
+              <ChevronUp size={20} strokeWidth={3} />
+            </button>
+            <button className="grid h-8 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 disabled:opacity-25" onClick={() => onMove(1)} disabled={index === total - 1} aria-label={`Move "${item}" down`}>
+              <ChevronDown size={20} strokeWidth={3} />
+            </button>
+          </span>
+          <span
+            className="grid h-12 w-8 cursor-grab touch-none place-items-center text-muted active:cursor-grabbing"
+            onPointerDown={(e) => controls.start(e)}
+            aria-hidden
+          >
+            <GripVertical size={20} />
+          </span>
+        </>
+      )}
+    </Reorder.Item>
+  )
+}
+
 function shuffled<T>(xs: T[]): T[] {
   if (xs.length < 2) return xs
   let out = xs
@@ -286,40 +348,22 @@ function shuffled<T>(xs: T[]): T[] {
 
 function Rank({ prompt, items, locked, onDone }: { prompt: string; items: string[]; locked: boolean; onDone: (ok: boolean) => void }) {
   const [order, setOrder] = useState(() => shuffled(items))
+  const move = (i: number, d: -1 | 1) => {
+    const j = i + d
+    if (j < 0 || j >= order.length) return
+    const next = [...order]
+    ;[next[i], next[j]] = [next[j], next[i]]
+    play('tap')
+    setOrder(next)
+  }
   return (
     <div>
-      <p className="text-xs font-extrabold tracking-[0.16em] text-sky-ink uppercase">Drag to reorder</p>
+      <p className="text-xs font-extrabold tracking-[0.16em] text-sky-ink uppercase">Put in order · drag the handle or use the arrows</p>
       <h2 className="mt-2 mb-6 font-display text-2xl font-bold sm:text-[28px] sm:leading-tight">{prompt}</h2>
       <Reorder.Group axis="y" values={order} onReorder={locked ? () => {} : setOrder} className="space-y-2.5">
-        {order.map((item, i) => {
-          const right = items[i] === item
-          return (
-            <Reorder.Item
-              key={item}
-              value={item}
-              dragListener={!locked}
-              whileDrag={{ scale: 1.03, rotate: -1, boxShadow: '0 12px 24px rgba(0,0,0,0.15)' }}
-              className={clsx(
-                'flex cursor-grab touch-none items-center gap-3 rounded-2xl border-2 border-b-4 bg-surface px-4 py-3 font-bold select-none active:cursor-grabbing',
-                !locked && 'border-line',
-                locked && right && 'border-brand bg-brand-soft',
-                locked && !right && 'border-danger bg-danger-soft',
-              )}
-            >
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-sky-soft text-xs font-extrabold text-sky-ink">{i + 1}</span>
-              <span className="flex-1">{item}</span>
-              {locked ? (
-                right ? (
-                  <Check size={20} strokeWidth={3} className="text-brand-ink" />
-                ) : (
-                  <span className="text-xs font-extrabold text-danger-ink">#{items.indexOf(item) + 1}</span>
-                )
-              ) : (
-                <GripVertical size={18} className="text-muted" />
-              )}
-            </Reorder.Item>
-          )
-        })}
+        {order.map((item, i) => (
+          <RankRow key={item} item={item} index={i} total={order.length} locked={locked} correctIndex={items.indexOf(item)} onMove={(d) => move(i, d)} />
+        ))}
       </Reorder.Group>
       {!locked && (
         <button className="btn-primary mt-6 w-full py-4 text-base" onClick={() => onDone(order.every((x, i) => x === items[i]))}>
