@@ -78,7 +78,7 @@ export function Slider({
         <span className="relative">
           {unit === 'money' && <span className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-xs font-bold text-muted">$</span>}
           <input
-            className={`w-24 rounded-lg border-2 bg-surface py-0.5 text-right font-display text-sm font-bold tabular-nums outline-none focus:border-sky ${
+            className={`h-10 w-24 rounded-lg border-2 bg-surface py-0.5 text-right font-display text-sm font-bold tabular-nums outline-none focus:border-sky ${
               unit === 'money' ? 'pl-5' : 'pl-2'
             } ${unit === 'percent' ? 'pr-6' : 'pr-2'} ${outOfRange ? 'border-gold' : 'border-line'}`}
             inputMode="decimal"

@@ -76,7 +76,7 @@ function ToolBar({
     <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-surface-2/70 p-2">
       {onUseMine &&
         (mine ? (
-          <button className="btn-sky px-3 py-2 text-xs" onClick={onUseMine} title={mineHint}>
+          <button className="btn-sky min-h-10 px-3 py-2 text-xs" onClick={onUseMine} title={mineHint}>
             <Wallet size={15} strokeWidth={2.8} /> Use my numbers
           </button>
         ) : (
@@ -88,7 +88,7 @@ function ToolBar({
           </span>
         ))}
       {onUseMine && mine && <span className="text-[11px] font-bold text-muted">based on {mine.basis}</span>}
-      <button className="btn-ghost ml-auto px-3 py-2 text-xs" onClick={onReset} disabled={isDefault}>
+      <button className="btn-ghost ml-auto min-h-10 px-3 py-2 text-xs" onClick={onReset} disabled={isDefault}>
         <RotateCcw size={14} strokeWidth={2.8} /> Reset
       </button>
     </div>
@@ -367,7 +367,36 @@ function DebtWidget({ persist }: { persist: boolean }) {
   return (
     <div className="space-y-4">
       <ToolBar persist={persist} isDefault={isDefault} onReset={reset} />
-      <div className="overflow-x-auto">
+      {/* Phones: one card per debt */}
+      <div className="space-y-2 sm:hidden">
+        {debts.map((d, i) => (
+          <div key={i} className="rounded-2xl border-2 border-line p-3">
+            <div className="flex items-center gap-2">
+              <input className="input py-2 font-extrabold" value={d.name} maxLength={24} onChange={(e) => up(i, { name: e.target.value })} aria-label={`Debt ${i + 1} name`} />
+              {persist && (
+                <button className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted disabled:opacity-30" disabled={debts.length <= 1} onClick={() => set({ debts: debts.filter((_, j) => j !== i) })} aria-label={`Remove ${d.name}`}>
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              <label className="text-[11px] font-extrabold text-muted uppercase">
+                Balance $
+                <input className="input mt-1 px-2 py-2" type="number" inputMode="decimal" min={0} value={d.balance} onChange={(e) => up(i, { balance: num(e.target.value) })} />
+              </label>
+              <label className="text-[11px] font-extrabold text-muted uppercase">
+                APR %
+                <input className="input mt-1 px-2 py-2" type="number" inputMode="decimal" min={0} step="0.1" value={+(d.rate * 100).toFixed(2)} onChange={(e) => up(i, { rate: Math.min(1, num(e.target.value) / 100) })} />
+              </label>
+              <label className="text-[11px] font-extrabold text-muted uppercase">
+                Min $
+                <input className="input mt-1 px-2 py-2" type="number" inputMode="decimal" min={0} value={d.minPayment} onChange={(e) => up(i, { minPayment: num(e.target.value) })} />
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="overflow-x-auto max-sm:hidden">
         <table className="w-full min-w-[460px] text-sm">
           <thead>
             <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
