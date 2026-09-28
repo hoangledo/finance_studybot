@@ -92,12 +92,20 @@ export async function claimQuestChest() {
 
 /* ───────────── Reviews ───────────── */
 
-export async function reviewCard(card: StudyCard, grade: Grade) {
+export async function reviewCard(card: StudyCard, grade: Grade, opts: { xp?: boolean } = {}) {
   const next = rate(card.fsrs, grade)
   await db.cards.update(card.id, { fsrs: next })
-  await db.reviewLogs.add({ cardId: card.id, rating: grade, ts: Date.now() })
-  await awardXp(XP.review[grade] ?? 5, { review: true, silent: true })
-  return next
+  const logId = await db.reviewLogs.add({ cardId: card.id, rating: grade, ts: Date.now() })
+  if (opts.xp !== false) await awardXp(XP.review[grade] ?? 5, { review: true, silent: true })
+  return { next, logId: logId as number }
+}
+
+/** Undo a review: restore the card's previous schedule and drop the review log. */
+export async function undoReview(card: StudyCard, logId: number) {
+  await db.transaction('rw', db.cards, db.reviewLogs, async () => {
+    await db.cards.update(card.id, { fsrs: card.fsrs })
+    await db.reviewLogs.delete(logId)
+  })
 }
 
 /* ───────────── Lessons ───────────── */
