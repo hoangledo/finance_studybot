@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, BookOpen, Calculator, Layers, Network, Plus, Sparkles, Wallet } from 'lucide-react'
+import { ArrowRight, BookOpen, Calculator, Flag, Layers, Network, Plus, Sparkles, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
@@ -151,6 +151,15 @@ export function HomePage() {
       <MoneySnapshot />
 
       <div className="grid gap-4 sm:grid-cols-2">
+        <Link to="/missions" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold text-on-color">
+            <Flag size={24} strokeWidth={2.6} />
+          </span>
+          <div>
+            <div className="font-extrabold">Missions</div>
+            <div className="text-sm text-muted">Real-world steps: open a HYSA, grab the match…</div>
+          </div>
+        </Link>
         <Link to="/tools" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-grape text-white">
             <Calculator size={24} strokeWidth={2.6} />

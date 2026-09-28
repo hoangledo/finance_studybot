@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Calculator, Network, Plus, Settings, UserRound, type LucideIcon } from 'lucide-react'
+import { BarChart3, BookOpen, Calculator, Flag, Network, Plus, Settings, UserRound, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Modal } from '../components/ui'
@@ -14,6 +14,7 @@ const TILES: { to: string; label: string; icon: LucideIcon; cls: string }[] = [
   { to: '/map', label: 'Map', icon: Network, cls: 'bg-gold text-on-color' },
   { to: '/library', label: 'Library', icon: BookOpen, cls: 'bg-grape text-white' },
   { to: '/tools', label: 'Money Lab', icon: Calculator, cls: 'bg-brand text-on-color' },
+  { to: '/missions', label: 'Missions', icon: Flag, cls: 'bg-gold text-on-color' },
   { to: '/profile', label: 'Profile', icon: UserRound, cls: 'bg-sky text-white' },
   { to: '/stats', label: 'Stats', icon: BarChart3, cls: 'bg-coral text-white' },
   { to: '/settings', label: 'Settings', icon: Settings, cls: 'bg-muted text-white' },

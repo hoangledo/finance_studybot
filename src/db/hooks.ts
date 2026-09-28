@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { dayKey } from '../lib/dates'
 import { dailyQuests, type QuestInputs } from '../lib/quests'
-import type { ActivityDay } from '../types'
+import type { ActivityDay, MissionProgress } from '../types'
 import { db, DEFAULT_PROFILE } from './db'
 
 export function useProfile() {
@@ -85,4 +85,11 @@ export function useDueCount() {
       [now.getTime()],
     ) ?? 0
   )
+}
+
+/** Mission progress keyed by mission id. */
+export function useMissionProgress() {
+  return useLiveQuery(async () => Object.fromEntries((await db.missionProgress.toArray()).map((p) => [p.missionId, p])), []) as
+    | Record<string, MissionProgress>
+    | undefined
 }

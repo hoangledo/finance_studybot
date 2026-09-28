@@ -14,6 +14,7 @@ const LessonPlayer = lazy(() => import('./features/path/LessonPlayer').then((m) 
 const MapPage = lazy(() => import('./features/map/MapPage').then((m) => ({ default: m.MapPage })))
 const StatsPage = lazy(() => import('./features/stats/StatsPage').then((m) => ({ default: m.StatsPage })))
 const MoneyPage = lazy(() => import('./features/money/MoneyPage').then((m) => ({ default: m.MoneyPage })))
+const MissionsPage = lazy(() => import('./features/missions/MissionsPage').then((m) => ({ default: m.MissionsPage })))
 const ToolsPage = lazy(() => import('./features/widgets/ToolsPage').then((m) => ({ default: m.ToolsPage })))
 const Spinner = () => (
   <div className="grid h-full min-h-60 place-items-center">
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: '/concept/:id', element: <ConceptPage /> },
       { path: '/money', element: page(<MoneyPage />) },
       { path: '/tools', element: page(<ToolsPage />) },
+      { path: '/missions', element: page(<MissionsPage />) },
       { path: '/stats', element: page(<StatsPage />) },
       { path: '/settings', element: <SettingsPage /> },
       { path: '/profile', element: <ProfilePage /> },
