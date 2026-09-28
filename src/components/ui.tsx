@@ -1,9 +1,10 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import clsx from 'clsx'
 import { Cappy, type Mood } from './mascot/Cappy'
+import { useKeyboardInset, usePhone } from '../lib/device'
 
 export function Md({ children, className }: { children: string; className?: string }) {
   return (
@@ -23,6 +24,10 @@ export function Md({ children, className }: { children: string; className?: stri
   )
 }
 
+/**
+ * Dialog that becomes a bottom sheet on phones: drag the handle down to close, sits above the
+ * on-screen keyboard, and respects the home-bar safe area. Centered card on larger screens.
+ */
 export function Modal({
   open,
   onClose,
@@ -36,6 +41,10 @@ export function Modal({
   children: ReactNode
   wide?: boolean
 }) {
+  const phone = usePhone()
+  const keyboard = useKeyboardInset()
+  const drag = useDragControls()
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -47,31 +56,47 @@ export function Modal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+          style={phone ? { paddingBottom: keyboard } : undefined}
         >
           <motion.div
             role="dialog"
+            aria-modal="true"
             aria-label={title}
             className={clsx(
-              'card max-h-[92vh] w-full overflow-y-auto rounded-b-none p-5 shadow-2xl sm:rounded-2xl',
+              'card flex w-full flex-col overflow-hidden shadow-2xl',
+              phone ? 'rounded-b-none border-b-0' : 'max-h-[88dvh] rounded-3xl',
               wide ? 'sm:max-w-3xl' : 'sm:max-w-lg',
             )}
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+            style={phone ? { maxHeight: `calc(100dvh - ${keyboard}px - env(safe-area-inset-top, 0px) - 16px)` } : undefined}
+            initial={phone ? { y: '100%' } : { y: 30, opacity: 0 }}
+            animate={phone ? { y: 0 } : { y: 0, opacity: 1 }}
+            exit={phone ? { y: '100%' } : { y: 30, opacity: 0 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+            drag={phone ? 'y' : false}
+            dragControls={drag}
+            dragListener={false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 110 || info.velocity.y > 600) onClose()
+            }}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold">{title}</h2>
-              <button className="rounded-lg p-1.5 text-muted hover:bg-surface-2" onClick={onClose} aria-label="Close">
-                <X size={18} />
-              </button>
+            {/* Header doubles as the drag handle on phones */}
+            <div className="shrink-0 touch-none px-5 pt-2 sm:pt-5" onPointerDown={(e) => phone && drag.start(e)}>
+              {phone && <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-line" aria-hidden />}
+              <div className="flex items-center justify-between gap-3 pb-3">
+                <h2 className="font-display text-lg font-semibold">{title}</h2>
+                <button className="-mr-2 grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-surface-2" onClick={onClose} aria-label="Close">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
-            {children}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(env(safe-area-inset-bottom),20px)]">{children}</div>
           </motion.div>
         </motion.div>
       )}
@@ -134,10 +159,11 @@ export function Bar({ value, color = 'var(--brand)', className }: { value: numbe
 
 export function PageHeader({ title, subtitle, right }: { title: string; subtitle?: string; right?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="font-display text-3xl font-bold sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3 md:mb-6">
+      <div className="min-w-0 flex-1">
+        {/* On phones the sticky header already shows the page name */}
+        <h1 className="font-display text-3xl font-bold max-md:sr-only sm:text-4xl">{title}</h1>
+        {subtitle && <p className="text-sm text-muted md:mt-1">{subtitle}</p>}
       </div>
       {right}
     </div>
