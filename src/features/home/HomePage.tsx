@@ -20,6 +20,7 @@ import { QuestsCard } from '../gamify/Quests'
 import { useQuickAdd } from '../library/QuickAdd'
 import { nextLesson } from '../path/PathPage'
 import { useMoney } from '../money/useMoney'
+import { CoachCard } from '../money/CoachCard'
 import { money, periodRange, summarize } from '../../lib/budget'
 
 export function HomePage() {
@@ -149,6 +150,7 @@ export function HomePage() {
       </div>
 
       <MoneySnapshot />
+      <CoachCard limit={1} compact />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Link to="/missions" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">

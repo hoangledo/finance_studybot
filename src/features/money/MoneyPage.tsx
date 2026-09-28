@@ -15,6 +15,7 @@ import { ChartTooltip, LegendDot, useViz } from '../widgets/common'
 import { MoneySettingsSheet } from './MoneySettingsSheet'
 import { TransactionSheet } from './TransactionSheet'
 import { useMoney } from './useMoney'
+import { CoachCard } from './CoachCard'
 import { useUi } from '../../app/uiStore'
 
 export function MoneyPage() {
@@ -137,6 +138,8 @@ export function MoneyPage() {
               hint={`target ${m.settings.targets.savings}%`}
             />
           </div>
+
+          <CoachCard />
 
           {/* Split vs targets */}
           <div className="card p-5">
