@@ -19,6 +19,24 @@ export function useViz() {
   return dark ? VIZ.dark : VIZ.light
 }
 
+export type Unit = 'money' | 'percent' | 'plain'
+
+const HARD_MAX: Record<Unit, number> = { money: 1e9, percent: 1, plain: 1e6 }
+
+/** Stored value → text shown in the box (percents are stored as fractions: 0.07 → "7"). */
+function toText(v: number, unit: Unit, step: number) {
+  if (unit === 'percent') {
+    const decimals = Math.max(0, Math.ceil(-Math.log10(step * 100) - 1e-9))
+    return String(Number((v * 100).toFixed(Math.min(decimals, 2))))
+  }
+  return String(Number(v.toFixed(2)))
+}
+
+/**
+ * A slider paired with a number box you can type into. Typed values may go beyond the
+ * slider's range (the slider pins to its end); only hard limits apply: no negatives,
+ * percents ≤ 100, and the optional `hardMin`/`hardMax`.
+ */
 export function Slider({
   label,
   value,
@@ -26,7 +44,9 @@ export function Slider({
   min,
   max,
   step = 1,
-  format = (v) => String(v),
+  unit = 'plain',
+  hardMin,
+  hardMax,
 }: {
   label: string
   value: number
@@ -34,24 +54,55 @@ export function Slider({
   min: number
   max: number
   step?: number
-  format?: (v: number) => string
+  unit?: Unit
+  hardMin?: number
+  hardMax?: number
 }) {
+  const [draft, setDraft] = useState<string | null>(null)
+  const lo = hardMin ?? Math.min(0, min)
+  const hi = hardMax ?? HARD_MAX[unit]
+  const commit = () => {
+    if (draft === null) return
+    const n = Number(draft.replace(/[$,%\s]/g, ''))
+    if (draft.trim() !== '' && Number.isFinite(n)) {
+      const v = unit === 'percent' ? n / 100 : n
+      onChange(Math.min(hi, Math.max(lo, v)))
+    }
+    setDraft(null)
+  }
+  const outOfRange = value > max || value < min
   return (
-    <label className="block">
-      <div className="mb-1 flex items-baseline justify-between text-xs">
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-2 text-xs">
         <span className="font-extrabold text-muted">{label}</span>
-        <span className="font-display text-sm font-bold tabular-nums">{format(value)}</span>
+        <span className="relative">
+          {unit === 'money' && <span className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-xs font-bold text-muted">$</span>}
+          <input
+            className={`w-24 rounded-lg border-2 bg-surface py-0.5 text-right font-display text-sm font-bold tabular-nums outline-none focus:border-sky ${
+              unit === 'money' ? 'pl-5' : 'pl-2'
+            } ${unit === 'percent' ? 'pr-6' : 'pr-2'} ${outOfRange ? 'border-gold' : 'border-line'}`}
+            inputMode="decimal"
+            value={draft ?? toText(value, unit, step)}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+            aria-label={`${label} value`}
+            title={outOfRange ? 'Custom value outside the slider range' : undefined}
+          />
+          {unit === 'percent' && <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-xs font-bold text-muted">%</span>}
+        </span>
       </div>
       <input
         type="range"
         min={min}
         max={max}
         step={step}
-        value={value}
+        value={Math.min(max, Math.max(min, value))}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-[var(--brand)]"
+        aria-label={label}
       />
-    </label>
+    </div>
   )
 }
 

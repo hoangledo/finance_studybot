@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { recordToolUse } from '../../db/actions'
+import { materializeRecurring } from '../../db/moneyActions'
 import clsx from 'clsx'
 import { PageHeader } from '../../components/ui'
 import type { WidgetId } from '../../types'
@@ -10,9 +11,13 @@ export function ToolsPage() {
   useEffect(() => {
     recordToolUse()
   }, [active])
+  // Keep "Use my numbers" current with recurring income/bills.
+  useEffect(() => {
+    materializeRecurring()
+  }, [])
   return (
     <>
-      <PageHeader title="Money Lab" subtitle="Interactive calculators. Play with the sliders until the idea clicks." />
+      <PageHeader title="Money Lab" subtitle="Interactive calculators. Drag the sliders or type your own numbers. Your inputs are saved." />
       <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {(Object.keys(WIDGET_META) as WidgetId[]).map((id) => (
           <button
@@ -31,7 +36,7 @@ export function ToolsPage() {
       <div className="card p-5 sm:p-6">
         <h2 className="font-display text-xl font-semibold">{WIDGET_META[active].title}</h2>
         <p className="mb-5 text-sm text-muted">{WIDGET_META[active].blurb}</p>
-        <Widget key={active} id={active} />
+        <Widget key={active} id={active} persist />
       </div>
     </>
   )
