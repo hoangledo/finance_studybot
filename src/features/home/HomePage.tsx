@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, Calculator, Layers, Network, Plus, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, Calculator, Layers, Network, Plus, Sparkles, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
@@ -19,6 +19,8 @@ import { ANIMALS } from '../avatar/parts'
 import { QuestsCard } from '../gamify/Quests'
 import { useQuickAdd } from '../library/QuickAdd'
 import { nextLesson } from '../path/PathPage'
+import { useMoney } from '../money/useMoney'
+import { money, periodRange, summarize } from '../../lib/budget'
 
 export function HomePage() {
   const profile = useProfile()
@@ -146,6 +148,8 @@ export function HomePage() {
         <QuestsCard compact />
       </div>
 
+      <MoneySnapshot />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Link to="/tools" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-grape text-white">
@@ -167,6 +171,15 @@ export function HomePage() {
             </div>
           </div>
         </button>
+        <Link to="/library" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5 md:hidden">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sky text-white">
+            <BookOpen size={24} strokeWidth={2.6} />
+          </span>
+          <div>
+            <div className="font-extrabold">Library</div>
+            <div className="text-sm text-muted">Browse every concept and your own notes</div>
+          </div>
+        </Link>
       </div>
 
       {cotd && (
@@ -273,5 +286,42 @@ function Onboarding() {
         </motion.div>
       )}
     </div>
+  )
+}
+
+/** This month's money at a glance, or a nudge to start tracking. */
+function MoneySnapshot() {
+  const m = useMoney()
+  if (!m.ready) return null
+  const range = periodRange('month', dayKey(), m.settings.weekStart)
+  const s = summarize(m.transactions, range, m.categories)
+  return (
+    <Link to="/money" className="card flex flex-wrap items-center gap-4 p-5 transition hover:-translate-y-0.5">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-coral text-white">
+        <Wallet size={24} strokeWidth={2.6} />
+      </span>
+      {s.count === 0 ? (
+        <div className="min-w-0 flex-1">
+          <div className="font-extrabold">Track your real money</div>
+          <div className="text-sm text-muted">Log income and spending to see your own 50/30/20 split.</div>
+        </div>
+      ) : (
+        <>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-extrabold tracking-wide text-muted uppercase">{range.label}</div>
+            <div className="font-display text-xl font-bold">
+              {money(s.spentCents)} <span className="text-base text-muted">spent of {money(s.incomeCents)}</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs font-extrabold tracking-wide text-muted uppercase">Savings rate</div>
+            <div className={clsx('font-display text-2xl font-bold', (s.savingsRate ?? 0) >= m.settings.targets.savings / 100 ? 'text-brand-ink' : 'text-gold-ink')}>
+              {s.savingsRate === null ? '—' : `${Math.round(s.savingsRate * 100)}%`}
+            </div>
+          </div>
+        </>
+      )}
+      <ArrowRight size={18} className="text-muted" />
+    </Link>
   )
 }
