@@ -137,12 +137,55 @@ body,
   height: 100%;
 }
 
+/* Use the real visible height on phones (Safari's toolbar shrinks/grows the viewport). */
+#root {
+  height: 100dvh;
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
   font-weight: 600;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; /* no gray flash on tap */
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none; /* no rubber-band bounce of the whole app shell */
+}
+
+/* Room for the notch / status bar when installed as an app (viewport-fit=cover). */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Secondary row actions: revealed on hover with a mouse, always visible on touch screens. */
+@media (hover: hover) {
+  .group .reveal-on-hover {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .group:hover .reveal-on-hover,
+  .group:focus-within .reveal-on-hover {
+    opacity: 1;
+  }
+}
+
+/* Touch devices: inputs at 16px so iOS Safari doesn't zoom in on focus; hide keyboard hints. */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+  kbd,
+  .kbd-hint {
+    display: none !important;
+  }
+  /* Bigger map zoom buttons for fingers (tablets use the graph view) */
+  .react-flow__controls-button {
+    width: 40px !important;
+    height: 40px !important;
+  }
 }
 
 /* ───────── Tactile building blocks ───────── */
@@ -158,8 +201,10 @@ body {
     transform: translateY(4px);
     box-shadow: 0 0 0 var(--btn-edge, var(--edge));
   }
-  &:not(:disabled):hover {
-    filter: brightness(1.05);
+  @media (hover: hover) {
+    &:not(:disabled):hover {
+      filter: brightness(1.05);
+    }
   }
 }
 @utility btn-primary {
@@ -185,9 +230,11 @@ body {
 @utility btn-ghost {
   @apply btn border-2 border-line bg-surface text-ink;
   --btn-edge: var(--border);
-  &:not(:disabled):hover {
-    filter: none;
-    background: var(--surface-2);
+  @media (hover: hover) {
+    &:not(:disabled):hover {
+      filter: none;
+      background: var(--surface-2);
+    }
   }
 }
 
