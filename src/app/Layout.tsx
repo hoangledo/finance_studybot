@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { BookOpen, Calculator, Home, Layers, Network, Plus, Route, Settings, UserRound, type LucideIcon } from 'lucide-react'
+import { BookOpen, Calculator, Home, Layers, Network, Plus, Route, Settings, UserRound, Wallet, type LucideIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -28,13 +28,14 @@ const NAV: { to: string; label: string; icon: LucideIcon; tone: Tone }[] = [
   { to: '/', label: 'Home', icon: Home, tone: 'coral' },
   { to: '/path', label: 'Learn', icon: Route, tone: 'brand' },
   { to: '/review', label: 'Review', icon: Layers, tone: 'sky' },
+  { to: '/money', label: 'Money', icon: Wallet, tone: 'coral' },
   { to: '/map', label: 'Map', icon: Network, tone: 'gold' },
   { to: '/library', label: 'Library', icon: BookOpen, tone: 'grape' },
   { to: '/tools', label: 'Money Lab', icon: Calculator, tone: 'brand' },
   { to: '/profile', label: 'Profile', icon: UserRound, tone: 'sky' },
   { to: '/settings', label: 'Settings', icon: Settings, tone: 'muted' },
 ]
-const MOBILE_NAV = ['/', '/path', '/review', '/map', '/library']
+const MOBILE_NAV = ['/', '/path', '/review', '/money', '/map']
 
 export function Layout() {
   const due = useDueCount()
