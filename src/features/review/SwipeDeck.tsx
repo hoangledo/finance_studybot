@@ -35,7 +35,8 @@ export function SwipeDeck({
 }) {
   return (
     <div className="select-none">
-      <div className="relative mx-auto h-[420px] max-w-md">
+      {/* Card height follows the screen: ~320px on small phones, up to 520px on tall ones */}
+      <div className="relative mx-auto h-[clamp(320px,calc(100dvh_-_300px),520px)] max-w-md">
         {nextCard && (
           <div className="card absolute inset-0 translate-y-3 scale-[0.95] p-6 opacity-70" aria-hidden>
             <FrontText card={nextCard} revealed={false} />

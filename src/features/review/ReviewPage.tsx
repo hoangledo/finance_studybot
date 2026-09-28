@@ -16,6 +16,7 @@ import { play } from '../gamify/sounds'
 import { Cappy } from '../../components/mascot/Cappy'
 import { pick } from '../../components/mascot/lines'
 import { SpeechBubble } from '../../components/mascot/SpeechBubble'
+import { useUi } from '../../app/uiStore'
 
 const GRADES: { g: Grade; label: string; key: string; cls: string }[] = [
   { g: Rating.Again, label: 'Again', key: '1', cls: 'btn-danger' },
@@ -27,18 +28,28 @@ const GRADES: { g: Grade; label: string; key: string; cls: string }[] = [
 type ReviewStyle = 'classic' | 'swipe'
 const STYLE_KEY = 'finquest.reviewStyle'
 
+/** Remembered choice; first-time phone users start in swipe mode. */
 function readStyle(): ReviewStyle {
   try {
-    return localStorage.getItem(STYLE_KEY) === 'swipe' ? 'swipe' : 'classic'
+    const saved = localStorage.getItem(STYLE_KEY)
+    if (saved === 'swipe' || saved === 'classic') return saved
   } catch {
-    return 'classic'
+    /* ignore */
   }
+  return window.matchMedia?.('(hover: none) and (pointer: coarse)').matches ? 'swipe' : 'classic'
 }
 
 export function ReviewPage() {
   const now = useNow()
   const concepts = useConcepts()
   const { queue, stats, mode, mood, loadQueue, rate, undo, canUndo } = useReviewSession()
+  const setFocus = useUi((s) => s.setFocus)
+  const inSession = !!queue && queue.length > 0
+  // Hide the app header and bottom bar while reviewing (✕ exits), like the lesson player.
+  useEffect(() => {
+    setFocus(inSession)
+    return () => setFocus(false)
+  }, [inSession, setFocus])
   const [style, setStyleState] = useState<ReviewStyle>(readStyle)
   const setStyle = (s: ReviewStyle) => {
     setStyleState(s)
@@ -66,9 +77,9 @@ export function ReviewPage() {
 
   const card = queue[0]
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="mb-4 flex items-center gap-3">
-        <Link to="/" className="rounded-xl p-1.5 text-muted hover:bg-surface-2" aria-label="Exit review">
+    <div className="pt-safe mx-auto max-w-2xl">
+      <div className="mb-3 flex items-center gap-2">
+        <Link to="/" className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted hover:bg-surface-2" aria-label="Exit review">
           <X size={24} strokeWidth={3} />
         </Link>
         <Bar value={stats.done / Math.max(1, total)} className="h-4 flex-1" />
@@ -80,7 +91,7 @@ export function ReviewPage() {
             <button
               key={st}
               onClick={() => setStyle(st)}
-              className={clsx('rounded-xl px-3.5 py-1.5 text-xs font-extrabold capitalize', style === st ? 'bg-surface shadow-sm' : 'text-muted')}
+              className={clsx('min-h-10 rounded-xl px-3.5 py-1.5 text-xs font-extrabold capitalize', style === st ? 'bg-surface shadow-sm' : 'text-muted')}
               aria-pressed={style === st}
             >
               {st === 'swipe' ? '👆 Swipe' : 'Classic'}
@@ -113,7 +124,12 @@ export function ReviewPage() {
             canUndo={canUndo}
           />
           <p className="mt-24 text-center text-xs text-muted">
-            {queue.length} left · tap to flip · <kbd>←</kbd> again · <kbd>↑</kbd> easy · <kbd>→</kbd> good · <kbd>Z</kbd> undo
+            {queue.length} left · tap to flip
+            <span className="kbd-hint">
+              {' '}
+              · <kbd>←</kbd> again · <kbd>↑</kbd> easy · <kbd>→</kbd> good · <kbd>Z</kbd> undo
+            </span>
+            <span className="hidden [@media(hover:none)]:inline"> · swipe → good, ← again, ↑ easy</span>
           </p>
         </>
       ) : (
@@ -131,10 +147,14 @@ export function ReviewPage() {
           </AnimatePresence>
           <div className="mt-6 flex items-center justify-center gap-3 text-xs text-muted">
             <span>
-              {queue.length} left · <kbd>Space</kbd> flip · <kbd>1–4</kbd> rate
+              {queue.length} left
+              <span className="kbd-hint">
+                {' '}
+                · <kbd>Space</kbd> flip · <kbd>1–4</kbd> rate
+              </span>
             </span>
             {canUndo && (
-              <button className="font-extrabold text-sky-ink hover:underline" onClick={undo}>
+              <button className="min-h-11 px-2 font-extrabold text-sky-ink hover:underline" onClick={undo}>
                 Undo last
               </button>
             )}
