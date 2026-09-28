@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { BookOpen, Calculator, Home, Layers, Network, Plus, Route, Settings, UserRound, Wallet, type LucideIcon } from 'lucide-react'
+import { BookOpen, Calculator, Home, LayoutGrid, Layers, Network, Plus, Route, Settings, UserRound, Wallet, type LucideIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -12,6 +12,8 @@ import { QuickAddModal, useQuickAdd } from '../features/library/QuickAdd'
 import { SyncBadge } from '../auth/AccountCard'
 import { openAuthFromGuest, useSession } from '../auth/session'
 import { supabaseConfigured } from '../auth/supabase'
+import { MORE_ROUTES, MoreSheet } from './MoreSheet'
+import { useUi } from './uiStore'
 
 type Tone = 'brand' | 'sky' | 'coral' | 'gold' | 'grape' | 'muted'
 
@@ -35,7 +37,14 @@ const NAV: { to: string; label: string; icon: LucideIcon; tone: Tone }[] = [
   { to: '/profile', label: 'Profile', icon: UserRound, tone: 'sky' },
   { to: '/settings', label: 'Settings', icon: Settings, tone: 'muted' },
 ]
-const MOBILE_NAV = ['/', '/path', '/review', '/money', '/map']
+const MOBILE_NAV = ['/', '/path', '/review', '/money']
+
+/** Title shown in the phone header, so you always know where you are. */
+function pageTitle(path: string) {
+  if (path.startsWith('/concept/')) return 'Concept'
+  if (path === '/stats') return 'Stats'
+  return NAV.find((n) => n.to === path)?.label ?? ''
+}
 
 export function Layout() {
   const due = useDueCount()
@@ -45,6 +54,16 @@ export function Layout() {
   const onboarded = useProfile().onboarded
   const authStatus = useSession((st) => st.status)
   const showRail = !fullBleed && onboarded
+  const { focus, setMoreOpen, setAddMoneyOpen, setFocus } = useUi()
+  const moreActive = MORE_ROUTES.includes(loc.pathname) || loc.pathname.startsWith('/concept/')
+  const onMoney = loc.pathname === '/money'
+  const showPlus = onMoney || ['/', '/library', '/map'].includes(loc.pathname) || loc.pathname.startsWith('/concept/')
+
+  // Leaving a page always ends focus mode and closes the More sheet.
+  useEffect(() => {
+    setFocus(false)
+    setMoreOpen(false)
+  }, [loc.pathname, setFocus, setMoreOpen])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -61,7 +80,7 @@ export function Layout() {
 
   return (
     <div className="flex h-full">
-      {/* Left nav */}
+      {/* Left nav (tablet and up) */}
       <aside className="hidden w-64 shrink-0 flex-col border-r-2 border-line bg-surface px-4 py-5 md:flex">
         <NavLink to="/" className="mb-6 flex items-center gap-1 px-1">
           <Cappy mood="idle" size={48} />
@@ -118,24 +137,42 @@ export function Layout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top HUD (hidden on large screens, where the right rail shows the same info) */}
-        <header
-          className={clsx(
-            'sticky top-0 z-30 flex items-center gap-4 border-b-2 border-line bg-bg/90 px-4 py-2.5 backdrop-blur sm:px-6',
-            showRail && 'lg:hidden',
-          )}
-        >
-          <MiniAvatar size={38} />
-          <div className="ml-auto flex items-center gap-4">
-            <StreakBadge />
-            <GoalRing />
-            <button className="btn-primary px-3 py-2 md:hidden" onClick={() => openAdd()} aria-label="Add concept">
-              <Plus size={18} strokeWidth={3} />
-            </button>
-          </div>
-        </header>
+        {!focus && (
+          <header
+            className={clsx(
+              'pt-safe sticky top-0 z-30 border-b-2 border-line bg-bg/90 backdrop-blur',
+              showRail && 'lg:hidden',
+            )}
+          >
+            <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
+              <MiniAvatar size={40} />
+              <span className="min-w-0 truncate font-display text-lg font-bold md:hidden">{pageTitle(loc.pathname)}</span>
+              <div className="ml-auto flex items-center gap-3">
+                <StreakBadge />
+                <GoalRing />
+                {showPlus && (
+                  <button
+                    className={clsx('h-10 w-10 p-0 md:hidden', onMoney ? 'btn-coral' : 'btn-primary')}
+                    onClick={() => (onMoney ? setAddMoneyOpen(true) : openAdd())}
+                    aria-label={onMoney ? 'Add money entry' : 'Add concept'}
+                  >
+                    <Plus size={20} strokeWidth={3} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </header>
+        )}
 
         <div className="flex min-h-0 flex-1">
-          <main className={clsx('min-h-0 min-w-0 flex-1', fullBleed ? 'overflow-hidden' : 'overflow-y-auto pb-28 md:pb-10')}>
+          <main
+            className={clsx(
+              'min-h-0 min-w-0 flex-1',
+              fullBleed ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain',
+              !fullBleed && (focus ? 'pb-[max(env(safe-area-inset-bottom),16px)]' : 'pb-[calc(88px_+_env(safe-area-inset-bottom))] md:pb-10'),
+              fullBleed && !focus && 'pb-[calc(72px_+_env(safe-area-inset-bottom))] md:pb-0',
+            )}
+          >
             {fullBleed ? (
               <Outlet />
             ) : (
@@ -157,34 +194,47 @@ export function Layout() {
           )}
         </div>
 
-        {/* Mobile bottom nav */}
-        <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t-2 border-line bg-surface px-1 pt-1.5 pb-[max(env(safe-area-inset-bottom),6px)] md:hidden">
-          {NAV.filter((n) => MOBILE_NAV.includes(n.to)).map(({ to, label, icon: Icon, tone }) => (
-            <NavLink key={to} to={to} end={to === '/'} className="relative flex flex-1 flex-col items-center gap-0.5 text-[11px] font-extrabold">
-              {({ isActive }) => (
-                <>
-                  <motion.span
-                    whileTap={{ scale: 0.85 }}
-                    animate={isActive ? { y: -2 } : { y: 0 }}
-                    className={clsx('grid h-10 w-12 place-items-center rounded-2xl', isActive ? TONE[tone].tileActive : 'text-muted')}
-                  >
-                    <Icon size={22} strokeWidth={2.6} />
-                  </motion.span>
-                  <span className={isActive ? 'text-ink' : 'text-muted'}>{label}</span>
-                  {to === '/review' && due > 0 && (
-                    <span className="absolute top-0 right-[calc(50%-24px)] rounded-full border-2 border-surface bg-danger px-1.5 text-[10px] font-extrabold text-white">
-                      {due}
-                    </span>
-                  )}
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+        {/* Mobile bottom nav: 4 main tabs + More */}
+        {!focus && (
+          <nav
+            aria-label="Main"
+            className="fixed inset-x-0 bottom-0 z-40 flex border-t-2 border-line bg-surface px-1 pt-1.5 pb-[max(env(safe-area-inset-bottom),6px)] md:hidden"
+          >
+            {NAV.filter((n) => MOBILE_NAV.includes(n.to)).map(({ to, label, icon: Icon, tone }) => (
+              <NavLink key={to} to={to} end={to === '/'} className="relative flex min-h-12 flex-1 flex-col items-center gap-0.5 text-[11px] font-extrabold">
+                {({ isActive }) => (
+                  <TabIcon icon={Icon} label={label} active={isActive} tone={tone} badge={to === '/review' ? due : 0} />
+                )}
+              </NavLink>
+            ))}
+            <button onClick={() => setMoreOpen(true)} className="relative flex min-h-12 flex-1 flex-col items-center gap-0.5 text-[11px] font-extrabold" aria-haspopup="dialog">
+              <TabIcon icon={LayoutGrid} label="More" active={moreActive} tone="grape" />
+            </button>
+          </nav>
+        )}
       </div>
 
       <QuickAddModal />
+      <MoreSheet />
       <Celebrations />
     </div>
+  )
+}
+
+function TabIcon({ icon: Icon, label, active, tone, badge = 0 }: { icon: LucideIcon; label: string; active: boolean; tone: Tone; badge?: number }) {
+  return (
+    <>
+      <motion.span
+        whileTap={{ scale: 0.85 }}
+        animate={active ? { y: -2 } : { y: 0 }}
+        className={clsx('grid h-10 w-14 place-items-center rounded-2xl', active ? TONE[tone].tileActive : 'text-muted')}
+      >
+        <Icon size={22} strokeWidth={2.6} />
+      </motion.span>
+      <span className={active ? 'text-ink' : 'text-muted'}>{label}</span>
+      {badge > 0 && (
+        <span className="absolute top-0 right-[calc(50%-26px)] rounded-full border-2 border-surface bg-danger px-1.5 text-[10px] font-extrabold text-white">{badge}</span>
+      )}
+    </>
   )
 }

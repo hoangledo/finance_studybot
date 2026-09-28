@@ -15,13 +15,15 @@ import { ChartTooltip, LegendDot, useViz } from '../widgets/common'
 import { MoneySettingsSheet } from './MoneySettingsSheet'
 import { TransactionSheet } from './TransactionSheet'
 import { useMoney } from './useMoney'
+import { useUi } from '../../app/uiStore'
 
 export function MoneyPage() {
   const m = useMoney()
   const viz = useViz()
   const [kind, setKind] = useState<PeriodKind>('month')
   const [anchor, setAnchor] = useState(dayKey())
-  const [adding, setAdding] = useState(false)
+  const adding = useUi((s) => s.addMoneyOpen)
+  const setAdding = useUi((s) => s.setAddMoneyOpen)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -40,7 +42,7 @@ export function MoneyPage() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [setAdding])
 
   const range = periodRange(kind, anchor, m.settings.weekStart)
   const isCurrent = range.start <= dayKey() && dayKey() <= range.end
@@ -77,29 +79,29 @@ export function MoneyPage() {
             <button className="btn-ghost px-3" onClick={() => setSettingsOpen(true)} aria-label="Money settings">
               <Settings2 size={18} />
             </button>
-            <button className="btn-coral" onClick={() => setAdding(true)}>
+            <button className="btn-coral max-md:hidden" onClick={() => setAdding(true)}>
               <Plus size={18} strokeWidth={3} /> Add
-              <kbd className="ml-1 hidden rounded-md bg-black/15 px-1.5 text-[10px] sm:inline">T</kbd>
+              <kbd className="ml-1 rounded-md bg-black/15 px-1.5 text-[10px]">T</kbd>
             </button>
           </div>
         }
       />
 
       {/* Period switcher */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
+      <div className="sticky top-0 z-20 -mx-4 mb-5 flex flex-wrap items-center justify-between gap-2 bg-bg/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 md:static md:mx-0 md:justify-start md:gap-3 md:bg-transparent md:p-0 md:backdrop-blur-none">
         <div className="inline-flex rounded-2xl bg-surface-2 p-1">
           {(['week', 'month', 'year'] as PeriodKind[]).map((k) => (
-            <button key={k} onClick={() => setKind(k)} className={clsx('rounded-xl px-4 py-1.5 text-sm font-extrabold capitalize', kind === k ? 'bg-surface shadow-sm' : 'text-muted')}>
+            <button key={k} onClick={() => setKind(k)} className={clsx('min-h-10 rounded-xl px-4 py-1.5 text-sm font-extrabold capitalize', kind === k ? 'bg-surface shadow-sm' : 'text-muted')}>
               {k}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-1">
-          <button className="rounded-xl p-2 hover:bg-surface-2" onClick={() => setAnchor(shiftPeriod(kind, anchor, -1))} aria-label="Previous period">
+          <button className="grid h-11 w-11 place-items-center rounded-xl hover:bg-surface-2" onClick={() => setAnchor(shiftPeriod(kind, anchor, -1))} aria-label="Previous period">
             <ChevronLeft size={20} strokeWidth={3} />
           </button>
           <span className="min-w-36 text-center font-display text-lg font-bold">{range.label}</span>
-          <button className="rounded-xl p-2 hover:bg-surface-2" onClick={() => setAnchor(shiftPeriod(kind, anchor, 1))} aria-label="Next period">
+          <button className="grid h-11 w-11 place-items-center rounded-xl hover:bg-surface-2" onClick={() => setAnchor(shiftPeriod(kind, anchor, 1))} aria-label="Next period">
             <ChevronRight size={20} strokeWidth={3} />
           </button>
         </div>
@@ -140,7 +142,7 @@ export function MoneyPage() {
           <div className="card p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-bold">Your split vs. targets</h2>
-              <button className="text-xs font-extrabold text-sky-ink hover:underline" onClick={() => setSettingsOpen(true)}>
+              <button className="-my-2 -mr-2 min-h-10 px-2 text-xs font-extrabold text-sky-ink hover:underline" onClick={() => setSettingsOpen(true)}>
                 {m.settings.targets.need}/{m.settings.targets.want}/{m.settings.targets.savings} · edit
               </button>
             </div>
@@ -298,15 +300,6 @@ export function MoneyPage() {
           </div>
         </div>
       )}
-
-      {/* Floating add button on phones */}
-      <button
-        onClick={() => setAdding(true)}
-        className="btn-coral fixed right-4 bottom-24 z-30 h-14 w-14 rounded-full p-0 md:hidden"
-        aria-label="Add money entry"
-      >
-        <Plus size={26} strokeWidth={3} />
-      </button>
 
       <TransactionSheet open={adding || !!editing} onClose={() => (setAdding(false), setEditing(null))} categories={m.categories} editing={editing} />
       <MoneySettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} settings={m.settings} categories={m.categories} recurring={m.recurring} catById={m.catById} />
