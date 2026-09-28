@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import { LESSON_BY_ID } from '../../content/lessons'
 import { completeLesson, recordCombo } from '../../db/actions'
 import { XP } from '../../lib/gamify'
-import { Bar, Md } from '../../components/ui'
+import { Bar } from '../../components/ui'
 import { Cappy } from '../../components/mascot/Cappy'
 import { pick } from '../../components/mascot/lines'
 import { SpeechBubble } from '../../components/mascot/SpeechBubble'
@@ -16,6 +16,7 @@ import { Celebrations } from '../gamify/Celebrations'
 import { play } from '../gamify/sounds'
 import { Widget } from '../widgets/Widgets'
 import { starsFor } from './PathPage'
+import { GlossaryMd, GlossarySheet } from '../glossary/Glossary'
 
 type Verdict = { correct: boolean; explain: string; line: string } | null
 
@@ -103,6 +104,7 @@ export function LessonPlayer() {
 
       {!result && <Footer step={step} verdict={verdict} onContinue={advance} />}
       <Celebrations />
+      <GlossarySheet />
     </div>
   )
 }
@@ -159,7 +161,7 @@ function StepView({ step, locked, onAnswer }: { step: LessonStep; locked: boolea
             </SpeechBubble>
           </div>
           <div className="card p-5 sm:p-6">
-            <Md className="text-[16px]">{step.body}</Md>
+            <GlossaryMd className="text-[16px]" inLesson>{step.body}</GlossaryMd>
           </div>
         </div>
       )

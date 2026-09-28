@@ -1,21 +1,34 @@
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { type Components, type Options } from 'react-markdown'
 import clsx from 'clsx'
 import { Cappy, type Mood } from './mascot/Cappy'
 import { useKeyboardInset, usePhone } from '../lib/device'
 
-export function Md({ children, className }: { children: string; className?: string }) {
+export function Md({
+  children,
+  className,
+  rehypePlugins,
+  components,
+}: {
+  children: string
+  className?: string
+  /** Extension points (used by the tap-to-define glossary). */
+  rehypePlugins?: Options['rehypePlugins']
+  components?: Components
+}) {
   return (
     <div className={clsx('prose-fin', className)}>
       <ReactMarkdown
+        rehypePlugins={rehypePlugins}
         components={{
           a: ({ href, children }) => (
             <a href={href} target="_blank" rel="noreferrer">
               {children}
             </a>
           ),
+          ...components,
         }}
       >
         {children}

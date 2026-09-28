@@ -15,6 +15,7 @@ import { describeAiError, explainSimply } from '../ai/lazy'
 import { hasApiKey } from '../ai/settings'
 import { toast } from '../gamify/fx'
 import { EDGE_LABEL, useQuickAdd } from './QuickAdd'
+import { GlossaryMd } from '../glossary/Glossary'
 
 export function ConceptPage() {
   const { id = '' } = useParams()
@@ -88,7 +89,7 @@ export function ConceptPage() {
                   </button>
                 </div>
               </div>
-              <Md className="mt-5 text-[15px]">{concept.summary}</Md>
+              <GlossaryMd className="mt-5 text-[15px]" exclude={concept.id}>{concept.summary}</GlossaryMd>
               {concept.sourceUrls.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {concept.sourceUrls.map((u) => (

@@ -23,12 +23,13 @@ import { LESSONS } from '../../content/lessons'
 import { addEdge, deleteEdge, unlockConcept } from '../../db/actions'
 import { useCards, useConcepts, useEdges } from '../../db/hooks'
 import { conceptMastery, MASTERY_STYLE, type MasteryLevel } from '../../lib/mastery'
-import { Md, Modal, Pill } from '../../components/ui'
+import { Modal, Pill } from '../../components/ui'
 import { usePhone } from '../../lib/device'
 import type { Concept, Domain, EdgeType } from '../../types'
 import { toast } from '../gamify/fx'
 import { EDGE_LABEL, useQuickAdd } from '../library/QuickAdd'
 import { useViz } from '../widgets/common'
+import { GlossaryMd } from '../glossary/Glossary'
 
 const NODE_W = 180
 const NODE_H = 54
@@ -507,7 +508,7 @@ function PanelBody({ concept, level, links, conceptsById, onSelect, onAddLinked,
         </Pill>
         <Pill color={m.color}>{m.label}</Pill>
       </div>
-      <Md>{concept.summary}</Md>
+      <GlossaryMd exclude={concept.id}>{concept.summary}</GlossaryMd>
       <h4 className="label mt-4">Connections</h4>
       <ul className="divide-y divide-line">
         {links.map((l) => {

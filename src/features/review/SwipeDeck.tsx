@@ -7,6 +7,7 @@ import { Rating, type Grade } from '../../lib/srs'
 import { Md, Pill } from '../../components/ui'
 import type { Concept, StudyCard } from '../../types'
 import { play } from '../gamify/sounds'
+import { GlossaryMd } from '../glossary/Glossary'
 
 const DIST = 110 // px drag distance that commits a swipe
 const VELOCITY = 600 // px/s flick that commits a swipe
@@ -197,7 +198,7 @@ function SwipeCard({
           )}
           {flipped && !isMcq && card.type !== 'cloze' && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-5 border-t-2 border-dashed border-line pt-4">
-              {card.type === 'reverse' ? <p className="font-display text-2xl font-bold text-brand-ink">{card.back}</p> : <Md className="text-[15px]">{card.back}</Md>}
+              {card.type === 'reverse' ? <p className="font-display text-2xl font-bold text-brand-ink">{card.back}</p> : <GlossaryMd className="text-[15px]" exclude={card.conceptId}>{card.back}</GlossaryMd>}
             </motion.div>
           )}
         </div>

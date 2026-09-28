@@ -14,6 +14,7 @@ import { openAuthFromGuest, useSession } from '../auth/session'
 import { supabaseConfigured } from '../auth/supabase'
 import { MORE_ROUTES, MoreSheet } from './MoreSheet'
 import { useUi } from './uiStore'
+import { GlossarySheet } from '../features/glossary/Glossary'
 
 type Tone = 'brand' | 'sky' | 'coral' | 'gold' | 'grape' | 'muted'
 
@@ -58,6 +59,7 @@ export function Layout() {
   const moreActive = MORE_ROUTES.includes(loc.pathname) || loc.pathname.startsWith('/concept/')
   const onMoney = loc.pathname === '/money'
   const showPlus = onMoney || ['/', '/library', '/map'].includes(loc.pathname) || loc.pathname.startsWith('/concept/')
+
 
   // Leaving a page always ends focus mode and closes the More sheet.
   useEffect(() => {
@@ -216,6 +218,7 @@ export function Layout() {
 
       <QuickAddModal />
       <MoreSheet />
+      <GlossarySheet />
       <Celebrations />
     </div>
   )

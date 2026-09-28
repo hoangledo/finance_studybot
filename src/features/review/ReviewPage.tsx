@@ -17,6 +17,7 @@ import { Cappy } from '../../components/mascot/Cappy'
 import { pick } from '../../components/mascot/lines'
 import { SpeechBubble } from '../../components/mascot/SpeechBubble'
 import { useUi } from '../../app/uiStore'
+import { GlossaryMd } from '../glossary/Glossary'
 
 const GRADES: { g: Grade; label: string; key: string; cls: string }[] = [
   { g: Rating.Again, label: 'Again', key: '1', cls: 'btn-danger' },
@@ -289,7 +290,7 @@ export function ReviewCard({ card, concept, onRate }: { card: StudyCard; concept
               {card.type === 'reverse' ? (
                 <p className="font-display text-2xl font-bold text-brand-ink">{card.back}</p>
               ) : (
-                <Md className="text-[15px]">{card.back}</Md>
+                <GlossaryMd className="text-[15px]" exclude={card.conceptId}>{card.back}</GlossaryMd>
               )}
             </motion.div>
           )}
