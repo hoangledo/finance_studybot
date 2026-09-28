@@ -191,7 +191,7 @@ export function HomePage() {
                 <div className="text-xs font-extrabold tracking-wide text-muted uppercase">
                   {pick('funFact', daySeed)} {DOMAIN_META[cotd.domain].icon}
                 </div>
-                <Link to={`/concept/${cotd.id}`} className="text-sm font-extrabold text-sky-ink">
+                <Link to={`/concept/${cotd.id}`} className="-my-2 inline-flex min-h-10 items-center px-2 text-sm font-extrabold text-sky-ink">
                   Open →
                 </Link>
               </div>

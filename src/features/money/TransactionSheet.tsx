@@ -89,7 +89,7 @@ function Form({ onDone, categories, editing }: { onDone: () => void; categories:
             type="button"
             onClick={() => setKind(k)}
             className={clsx(
-              'rounded-xl py-2 text-sm font-extrabold capitalize transition',
+              'min-h-10 rounded-xl py-2 text-sm font-extrabold capitalize transition',
               kind === k ? (k === 'income' ? 'bg-brand text-on-color' : 'bg-coral text-white') : 'text-muted',
             )}
           >

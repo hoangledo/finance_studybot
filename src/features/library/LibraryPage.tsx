@@ -60,7 +60,7 @@ export function LibraryPage() {
         </select>
         <div className="inline-flex rounded-xl bg-surface-2 p-1">
           {(['all', 'mine'] as const).map((s) => (
-            <button key={s} onClick={() => setScope(s)} className={clsx('rounded-lg px-3 py-1 text-sm font-semibold', scope === s ? 'bg-surface shadow-sm' : 'text-muted')}>
+            <button key={s} onClick={() => setScope(s)} className={clsx('min-h-10 rounded-lg px-3 py-1 text-sm font-semibold', scope === s ? 'bg-surface shadow-sm' : 'text-muted')}>
               {s === 'all' ? 'All' : 'Mine'}
             </button>
           ))}

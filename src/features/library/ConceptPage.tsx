@@ -3,6 +3,7 @@ import { ArrowLeft, ExternalLink, Loader2, Pencil, Plus, Sparkles, Trash2, Unloc
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { State } from 'ts-fsrs'
+import clsx from 'clsx'
 import { DOMAIN_META } from '../../content/concepts'
 import { addCard, deleteCard, deleteConcept, deleteEdge, unlockConcept, updateCard, updateConcept } from '../../db/actions'
 import { db } from '../../db/db'
@@ -54,7 +55,7 @@ export function ConceptPage() {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted hover:text-ink">
+      <button onClick={() => navigate(-1)} className="-ml-1 flex min-h-10 items-center gap-1 px-1 text-sm text-muted hover:text-ink">
         <ArrowLeft size={16} /> Back
       </button>
 
@@ -82,7 +83,7 @@ export function ConceptPage() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button className="btn-ghost px-3 py-2" onClick={() => setEditing(true)} aria-label="Edit concept">
+                  <button className="btn-ghost h-11 w-11 p-0" onClick={() => setEditing(true)} aria-label="Edit concept">
                     <Pencil size={15} />
                   </button>
                 </div>
@@ -91,7 +92,7 @@ export function ConceptPage() {
               {concept.sourceUrls.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {concept.sourceUrls.map((u) => (
-                    <a key={u} href={u} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted hover:text-brand-ink">
+                    <a key={u} href={u} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1 rounded-lg bg-surface-2 px-3 py-1 text-xs font-medium text-muted hover:text-brand-ink">
                       <ExternalLink size={12} /> {sourceLabel(u)}
                     </a>
                   ))}
@@ -113,7 +114,7 @@ export function ConceptPage() {
               {eli5Loading ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} {eli5 ? 'Try again' : 'Explain it'}
             </button>
           ) : (
-            <Link to="/settings" className="text-sm text-muted underline">
+            <Link to="/settings" className="inline-flex min-h-10 items-center text-sm text-muted underline">
               Add an API key to enable
             </Link>
           )}
@@ -150,10 +151,10 @@ export function ConceptPage() {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">Connections</h2>
           <div className="flex gap-2">
-            <Link to="/map" className="btn-ghost py-1.5 text-xs">
+            <Link to="/map" className="btn-ghost min-h-10 py-1.5 text-xs">
               Open map
             </Link>
-            <button className="btn-ghost py-1.5 text-xs" onClick={() => openAdd({ linkTo: concept.id })}>
+            <button className="btn-ghost min-h-10 py-1.5 text-xs" onClick={() => openAdd({ linkTo: concept.id })}>
               <Plus size={14} /> Linked concept
             </button>
           </div>
@@ -163,11 +164,11 @@ export function ConceptPage() {
             other ? (
               <div key={edge.id} className="card group flex items-center gap-2 px-3 py-2.5 text-sm">
                 <span className="text-muted">{edge.from === concept.id ? EDGE_LABEL[edge.type] : `← ${EDGE_LABEL[edge.type]}`}</span>
-                <Link to={`/concept/${other.id}`} className="min-w-0 flex-1 truncate font-semibold hover:text-brand-ink">
+                <Link to={`/concept/${other.id}`} className="flex min-h-10 min-w-0 flex-1 items-center truncate font-semibold hover:text-brand-ink">
                   {other.title}
                 </Link>
-                <button className="rounded p-1 text-muted opacity-0 group-hover:opacity-100 hover:text-danger-ink" onClick={() => deleteEdge(edge.id)} aria-label="Remove link">
-                  <Trash2 size={14} />
+                <button className="reveal-on-hover -my-1 -mr-2 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-muted hover:text-danger-ink" onClick={() => deleteEdge(edge.id)} aria-label={`Remove link to ${other.title}`}>
+                  <Trash2 size={16} />
                 </button>
               </div>
             ) : null,
@@ -220,6 +221,7 @@ function CardRow({ card }: { card: StudyCard }) {
   const [edit, setEdit] = useState(false)
   const [front, setFront] = useState(card.front)
   const [back, setBack] = useState(card.back)
+  const [confirmDel, setConfirmDel] = useState(false)
   const due = new Date(card.fsrs.due)
   const status = card.locked
     ? 'Locked'
@@ -262,13 +264,19 @@ function CardRow({ card }: { card: StudyCard }) {
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-muted">{status}</span>
-        <div className="flex opacity-0 transition group-hover:opacity-100">
-          <button className="rounded p-1 text-muted hover:text-ink" onClick={() => setEdit(true)} aria-label="Edit card">
-            <Pencil size={14} />
+        <div className={clsx('flex', !confirmDel && 'reveal-on-hover')}>
+          <button className="grid h-10 w-10 place-items-center rounded-xl text-muted hover:text-ink" onClick={() => setEdit(true)} aria-label="Edit card">
+            <Pencil size={16} />
           </button>
-          <button className="rounded p-1 text-muted hover:text-danger-ink" onClick={() => deleteCard(card.id)} aria-label="Delete card">
-            <Trash2 size={14} />
-          </button>
+          {confirmDel ? (
+            <button className="h-10 rounded-xl bg-danger px-3 text-xs font-extrabold text-white" onClick={() => deleteCard(card.id)} onBlur={() => setConfirmDel(false)} autoFocus>
+              Delete?
+            </button>
+          ) : (
+            <button className="grid h-10 w-10 place-items-center rounded-xl text-muted hover:text-danger-ink" onClick={() => setConfirmDel(true)} aria-label="Delete card">
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
       </div>
     </div>

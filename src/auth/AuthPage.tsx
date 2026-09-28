@@ -93,7 +93,7 @@ export function AuthPage() {
                   key={m}
                   type="button"
                   onClick={() => go(m)}
-                  className={clsx('rounded-xl py-2 text-sm font-extrabold transition', mode === m ? 'bg-surface shadow-sm' : 'text-muted')}
+                  className={clsx('min-h-10 rounded-xl py-2 text-sm font-extrabold transition', mode === m ? 'bg-surface shadow-sm' : 'text-muted')}
                 >
                   {m === 'signin' ? 'Sign in' : 'Create account'}
                 </button>
@@ -259,7 +259,7 @@ function PasswordField({
 
 function AuthShell({ mood, line, children }: { mood: Mood; line: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-full overflow-y-auto bg-bg px-4 py-8">
+    <div className="h-full overflow-y-auto overscroll-contain bg-bg px-4 pt-[calc(env(safe-area-inset-top,0px)_+_24px)] pb-[calc(env(safe-area-inset-bottom,0px)_+_24px)]">
       <div className="mx-auto max-w-md">
         <div className="mb-2 flex items-center justify-center gap-1">
           <span className="font-display text-4xl font-bold tracking-tight text-brand-ink">finquest</span>

@@ -33,7 +33,7 @@ export function MoneySettingsSheet({
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={clsx('rounded-xl px-4 py-1.5 text-sm font-extrabold capitalize', tab === t ? 'bg-surface shadow-sm' : 'text-muted')}
+            className={clsx('min-h-10 rounded-xl px-4 py-1.5 text-sm font-extrabold capitalize', tab === t ? 'bg-surface shadow-sm' : 'text-muted')}
           >
             {t}
           </button>

@@ -113,7 +113,7 @@ function QuickAddBody({ prefill, onDone }: { prefill: QuickAddState['prefill']; 
             key={t}
             onClick={() => setTab(t)}
             className={clsx(
-              'flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold transition',
+              'flex items-center gap-1.5 min-h-10 rounded-lg px-4 py-1.5 text-sm font-semibold transition',
               tab === t ? 'bg-surface text-ink shadow-sm' : 'text-muted',
             )}
           >

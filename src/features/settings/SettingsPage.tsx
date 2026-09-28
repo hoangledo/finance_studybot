@@ -63,7 +63,7 @@ export function SettingsPage() {
               <button
                 key={p}
                 onClick={() => theme.set(p)}
-                className={clsx('flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold', theme.pref === p ? 'bg-surface shadow-sm' : 'text-muted')}
+                className={clsx('flex items-center gap-1.5 min-h-10 rounded-lg px-3 py-1.5 text-sm font-semibold', theme.pref === p ? 'bg-surface shadow-sm' : 'text-muted')}
               >
                 <Icon size={15} /> {label}
               </button>
@@ -84,7 +84,7 @@ export function SettingsPage() {
                   setMutedState(m as boolean)
                   if (!m) play('correct')
                 }}
-                className={clsx('rounded-lg px-4 py-1.5 text-sm font-extrabold', muted === m ? 'bg-surface shadow-sm' : 'text-muted')}
+                className={clsx('min-h-10 rounded-lg px-4 py-1.5 text-sm font-extrabold', muted === m ? 'bg-surface shadow-sm' : 'text-muted')}
               >
                 {label as string}
               </button>
@@ -117,7 +117,7 @@ export function SettingsPage() {
                 onChange={(e) => setKey(e.target.value)}
                 autoComplete="off"
               />
-              <button className="absolute top-1/2 right-2 -translate-y-1/2 p-1 text-muted" onClick={() => setShowKey(!showKey)} aria-label="Toggle key visibility">
+              <button className="absolute top-1/2 right-0.5 grid h-10 w-10 -translate-y-1/2 place-items-center text-muted" onClick={() => setShowKey(!showKey)} aria-label="Toggle key visibility">
                 {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
