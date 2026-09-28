@@ -3,8 +3,10 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { initTheme } from './app/theme'
+import { initPwa } from './app/pwa'
 
 initTheme()
+initPwa()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

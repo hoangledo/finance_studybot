@@ -33,7 +33,10 @@ export function Toasts() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -12, scale: 0.9 }}
             transition={{ type: 'spring', damping: 16, stiffness: 320 }}
-            onClick={() => dismiss(t.id)}
+            onClick={() => {
+              dismiss(t.id)
+              t.onTap?.()
+            }}
             className={`pointer-events-auto rounded-full border-2 border-b-4 px-5 py-2 text-center shadow-lg ${KIND_STYLE[t.kind]}`}
           >
             <div className="font-display text-[15px] font-bold">{t.title}</div>

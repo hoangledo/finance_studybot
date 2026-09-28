@@ -9,6 +9,10 @@ export interface Toast {
   kind: ToastKind
   title: string
   body?: string
+  /** Runs when the toast is tapped (it is dismissed either way). */
+  onTap?: () => void
+  /** Stay until tapped instead of fading after a few seconds. */
+  sticky?: boolean
 }
 
 interface FxState {
@@ -32,7 +36,7 @@ export const useFx = create<FxState>((set, get) => ({
   push: (t) => {
     const id = nextId++
     set({ toasts: [...get().toasts, { ...t, id }] })
-    setTimeout(() => get().dismiss(id), t.kind === 'error' ? 6000 : 3200)
+    if (!t.sticky) setTimeout(() => get().dismiss(id), t.kind === 'error' ? 6000 : 3200)
   },
   dismiss: (id) => set({ toasts: get().toasts.filter((x) => x.id !== id) }),
   showLevelUp: (level, unlocks = []) => {
