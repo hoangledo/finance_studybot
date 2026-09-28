@@ -33,7 +33,7 @@ export interface Edge {
   type: EdgeType
 }
 
-export type CardType = 'basic' | 'reverse' | 'cloze' | 'mcq'
+export type CardType = 'basic' | 'reverse' | 'cloze' | 'mcq' | 'calc'
 
 export interface StudyCard {
   id: string
@@ -44,6 +44,8 @@ export interface StudyCard {
   /** Only for type 'mcq': answer choices and the index of the correct one. `back` holds the explanation. */
   options?: string[]
   answer?: number
+  /** Only for type 'calc': id of the number-crunch template that generates fresh numbers each review. */
+  template?: string
   fsrs: FsrsCard
   /** Seed cards stay locked until their lesson is finished (or you start them manually). */
   locked: boolean
@@ -158,4 +160,27 @@ export interface Recurring {
 export interface MoneySettings {
   targets: Record<Bucket, number> // percentages, sum to 100
   weekStart: 0 | 1 // 0 = Sunday, 1 = Monday
+}
+
+/* ───────── Missions, achievements, simulator ───────── */
+
+export interface MissionProgress {
+  missionId: string
+  stepsDone: number[] // indexes of completed steps
+  startedAt: number
+  completedAt?: number
+}
+
+export interface Achievement {
+  id: string
+  unlockedAt: number
+}
+
+export interface SimRun {
+  id: string
+  seed: number
+  score: number
+  grade: string
+  netWorthCents: number
+  finishedAt: number
 }

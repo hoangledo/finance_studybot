@@ -53,6 +53,9 @@ describe('account sync', () => {
     await dbMod.db.profile.update('me', { xp: 321 })
     await dbMod.db.transactions.add({ id: 'tx-1', date: '2026-09-01', amountCents: 450000, kind: 'income', categoryId: 'cat-salary', note: 'Pay', createdAt: 1 })
     await dbMod.db.categories.update('cat-dining', { monthlyLimitCents: 15000 })
+    await dbMod.db.missionProgress.put({ missionId: 'open-hysa', stepsDone: [0, 1], startedAt: 1 })
+    await dbMod.db.achievements.put({ id: 'first-lesson', unlockedAt: 2 })
+    await dbMod.db.simRuns.put({ id: 'sim-1', seed: 9, score: 140, grade: 'A', netWorthCents: 12_000_000, finishedAt: 3 })
     await waitForMutationEvent()
     expect(await mod.flushSync()).toBe(true)
     expect(cloudXp('user-a')).toBe(321)
@@ -69,6 +72,10 @@ describe('account sync', () => {
     // Money tracker data travels with the account too.
     expect((await dbMod.db.transactions.get('tx-1'))!.amountCents).toBe(450000)
     expect((await dbMod.db.categories.get('cat-dining'))!.monthlyLimitCents).toBe(15000)
+    // So do missions, badges and simulator runs.
+    expect((await dbMod.db.missionProgress.get('open-hysa'))!.stepsDone).toEqual([0, 1])
+    expect(await dbMod.db.achievements.get('first-lesson')).toBeTruthy()
+    expect((await dbMod.db.simRuns.get('sim-1'))!.grade).toBe('A')
   })
 
   it('keeps accounts separate', async () => {

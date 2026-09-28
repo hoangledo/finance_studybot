@@ -13,6 +13,9 @@ const TABLES = [
   'transactions',
   'categories',
   'recurring',
+  'missionProgress',
+  'achievements',
+  'simRuns',
 ] as const
 
 export interface Backup {

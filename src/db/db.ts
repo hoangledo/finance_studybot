@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import { DEFAULT_AVATAR } from '../features/avatar/parts'
-import type { ActivityDay, Category, Concept, Edge, LessonProgress, Profile, Recurring, ReviewLog, StudyCard, Transaction } from '../types'
+import type { Achievement, ActivityDay, Category, Concept, Edge, LessonProgress, MissionProgress, Profile, Recurring, ReviewLog, SimRun, StudyCard, Transaction } from '../types'
 
 export class FinDB extends Dexie {
   concepts!: EntityTable<Concept, 'id'>
@@ -14,6 +14,9 @@ export class FinDB extends Dexie {
   transactions!: EntityTable<Transaction, 'id'>
   categories!: EntityTable<Category, 'id'>
   recurring!: EntityTable<Recurring, 'id'>
+  missionProgress!: EntityTable<MissionProgress, 'missionId'>
+  achievements!: EntityTable<Achievement, 'id'>
+  simRuns!: EntityTable<SimRun, 'id'>
 
   constructor(name = 'finquest') {
     super(name)
@@ -32,6 +35,12 @@ export class FinDB extends Dexie {
       transactions: 'id, date, categoryId, recurringId',
       categories: 'id, kind',
       recurring: 'id',
+    })
+    // v3: missions, achievements, life simulator
+    this.version(3).stores({
+      missionProgress: 'missionId, completedAt',
+      achievements: 'id',
+      simRuns: 'id, finishedAt',
     })
   }
 }
