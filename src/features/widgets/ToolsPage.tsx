@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { recordToolUse } from '../../db/actions'
 import { materializeRecurring } from '../../db/moneyActions'
 import clsx from 'clsx'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../../components/ui'
 import type { WidgetId } from '../../types'
 import { Widget, WIDGET_META } from './Widgets'
@@ -18,6 +19,14 @@ export function ToolsPage() {
   return (
     <>
       <PageHeader title="Money Lab" subtitle="Interactive calculators. Drag the sliders or type your own numbers. Your inputs are saved." />
+      <Link to="/sim" className="card mb-4 flex min-h-16 items-center gap-3 border-grape bg-grape-soft p-4 transition active:translate-y-0.5">
+        <span className="text-3xl">🎲</span>
+        <span className="flex-1">
+          <span className="block font-extrabold">Life Simulator</span>
+          <span className="text-sm text-muted">Put these tools to work: live 10 years of money decisions.</span>
+        </span>
+        <span className="font-extrabold text-grape-ink">Play →</span>
+      </Link>
       <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {(Object.keys(WIDGET_META) as WidgetId[]).map((id) => (
           <button

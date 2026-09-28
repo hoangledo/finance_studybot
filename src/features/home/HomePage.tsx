@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, BookOpen, Calculator, Flag, Layers, Network, Plus, Sparkles, Wallet } from 'lucide-react'
+import { ArrowRight, BookOpen, Calculator, Dices, Flag, Layers, Network, Plus, Sparkles, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
@@ -160,6 +160,15 @@ export function HomePage() {
           <div>
             <div className="font-extrabold">Missions</div>
             <div className="text-sm text-muted">Real-world steps: open a HYSA, grab the match…</div>
+          </div>
+        </Link>
+        <Link to="/sim" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sky text-white">
+            <Dices size={24} strokeWidth={2.6} />
+          </span>
+          <div>
+            <div className="font-extrabold">Life Simulator</div>
+            <div className="text-sm text-muted">Live 10 years of money choices, risk-free</div>
           </div>
         </Link>
         <Link to="/tools" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">

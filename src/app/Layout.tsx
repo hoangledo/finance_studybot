@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { BookOpen, Calculator, Flag, Home, LayoutGrid, Layers, Network, Plus, Route, Settings, UserRound, Wallet, type LucideIcon } from 'lucide-react'
+import { BookOpen, Calculator, Dices, Flag, Home, LayoutGrid, Layers, Network, Plus, Route, Settings, UserRound, Wallet, type LucideIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -37,6 +37,7 @@ const NAV: { to: string; label: string; icon: LucideIcon; tone: Tone }[] = [
   { to: '/library', label: 'Library', icon: BookOpen, tone: 'grape' },
   { to: '/tools', label: 'Money Lab', icon: Calculator, tone: 'brand' },
   { to: '/missions', label: 'Missions', icon: Flag, tone: 'gold' },
+  { to: '/sim', label: 'Life Sim', icon: Dices, tone: 'grape' },
   { to: '/profile', label: 'Profile', icon: UserRound, tone: 'sky' },
   { to: '/settings', label: 'Settings', icon: Settings, tone: 'muted' },
 ]
