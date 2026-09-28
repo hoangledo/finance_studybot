@@ -14,6 +14,7 @@ import { openAuthFromGuest, useSession } from '../auth/session'
 import { supabaseConfigured } from '../auth/supabase'
 import { MORE_ROUTES, MoreSheet } from './MoreSheet'
 import { useUi } from './uiStore'
+import { scheduleAchievementCheck } from '../db/achievementActions'
 import { GlossarySheet } from '../features/glossary/Glossary'
 
 type Tone = 'brand' | 'sky' | 'coral' | 'gold' | 'grape' | 'muted'
@@ -61,6 +62,10 @@ export function Layout() {
   const onMoney = loc.pathname === '/money'
   const showPlus = onMoney || ['/', '/library', '/map'].includes(loc.pathname) || loc.pathname.startsWith('/concept/')
 
+  // Catch up on badges earned before they existed (or on another device) once per visit.
+  useEffect(() => {
+    scheduleAchievementCheck(2500)
+  }, [])
 
   // Leaving a page always ends focus mode and closes the More sheet.
   useEffect(() => {

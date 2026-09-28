@@ -13,6 +13,7 @@ import { Ring } from '../../components/ui'
 import { Avatar } from '../avatar/Avatar'
 import { ACCESSORIES, ANIMALS, COLORS, isUnlocked, unlockLabel, type AvatarConfig } from '../avatar/parts'
 import { play } from '../gamify/sounds'
+import { ACHIEVEMENTS } from '../../content/achievements'
 import { AccountCard } from '../../auth/AccountCard'
 
 type Tab = 'animal' | 'color' | 'accessory'
@@ -114,6 +115,8 @@ export function ProfilePage() {
         </div>
       </div>
 
+      <Badges />
+
       <Link to="/stats" className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5">
         <span className="grid h-11 w-11 place-items-center rounded-xl bg-gold-soft text-gold-ink">
           <BarChart3 size={22} strokeWidth={2.6} />
@@ -124,6 +127,37 @@ export function ProfilePage() {
         </div>
         <span className="text-muted">→</span>
       </Link>
+    </div>
+  )
+}
+
+/** Badge collection: earned ones in color with the date, locked ones gray with how to earn them. */
+function Badges() {
+  const unlocked = useLiveQuery(async () => Object.fromEntries((await db.achievements.toArray()).map((a) => [a.id, a.unlockedAt])), []) ?? {}
+  const count = Object.keys(unlocked).length
+  const sorted = [...ACHIEVEMENTS].sort((a, b) => Number(!unlocked[a.id]) - Number(!unlocked[b.id]))
+  return (
+    <div className="card p-5">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-xl font-bold">Badges</h2>
+        <span className="text-sm font-extrabold text-muted">
+          {count}/{ACHIEVEMENTS.length}
+        </span>
+      </div>
+      <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {sorted.map((a) => {
+          const at = unlocked[a.id]
+          return (
+            <li key={a.id} className={clsx('rounded-2xl border-2 border-b-4 p-3 text-center', at ? 'border-gold bg-gold-soft' : 'border-line')}>
+              <div className={clsx('text-3xl', !at && 'opacity-40 grayscale')}>{a.emoji}</div>
+              <div className={clsx('mt-1 text-sm font-extrabold leading-tight', !at && 'text-muted')}>{a.title}</div>
+              <div className="mt-0.5 text-[11px] font-bold text-muted">
+                {at ? `Earned ${new Date(at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : a.hint}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }

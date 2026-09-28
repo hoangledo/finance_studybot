@@ -8,6 +8,7 @@ import { newFsrsCard, rate } from '../lib/srs'
 import { streakUnlocksBetween, unlocksBetween } from '../features/avatar/parts'
 import { burst, toast, useFx } from '../features/gamify/fx'
 import { play } from '../features/gamify/sounds'
+import { scheduleAchievementCheck } from './achievementActions'
 import type { ActivityDay, CardType, Concept, Domain, EdgeType, StudyCard } from '../types'
 import { db, DEFAULT_PROFILE } from './db'
 
@@ -53,6 +54,7 @@ export async function awardXp(amount: number, opts: { review?: boolean; silent?:
   } else if (streakUnlocks.length) {
     toast({ kind: 'level', title: '🎁 New avatar item unlocked!', body: 'Check your profile.' })
   }
+  scheduleAchievementCheck()
   return result
 }
 

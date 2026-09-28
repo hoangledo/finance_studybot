@@ -3,6 +3,7 @@ import { DEFAULT_MONEY_SETTINGS, missingOccurrences, normalizeTargets } from '..
 import { uid } from '../lib/id'
 import type { Bucket, Cadence, Category, MoneySettings, Recurring, Transaction, TxnKind } from '../types'
 import { awardXp } from './actions'
+import { scheduleAchievementCheck } from './achievementActions'
 import { db } from './db'
 
 export const MONEY_LOG_XP = 5
@@ -29,6 +30,7 @@ export async function addTransaction(input: TxnInput, repeat?: Cadence) {
   await db.transactions.add({ id, ...cleanTemplate(input), date: input.date, recurringId, createdAt: now })
   await rewardLogging()
   if (recurringId) await materializeRecurring()
+  scheduleAchievementCheck()
   return id
 }
 
