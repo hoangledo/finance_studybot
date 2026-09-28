@@ -17,6 +17,7 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
   - `mastery.ts`
   - `quests.ts`
   - `dates.ts`: local `YYYY-MM-DD` day keys
+  - `calc.ts`: seeded RNG and number-crunch card builder; `glossary.ts`: term matcher; `coach.ts`: money-coach rules; `sim.ts`: Life Simulator engine
 - `src/db/`:
   - `db.ts`: Dexie schema and `DEFAULT_PROFILE`
   - `actions.ts`: every write
@@ -63,6 +64,13 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
   - `reviewCard` returns `{ next, logId }`, and `undoReview` restores the previous schedule. Re-rating an undone card earns no XP.
 - **The Anthropic SDK is lazy-loaded.** Import from `features/ai/lazy.ts` (async wrappers) and `features/ai/settings.ts` (key and model in localStorage), never `features/ai/claude.ts` directly, so the SDK stays out of the main bundle.
   - The default model is `claude-opus-5`, with `fallbacks: 'default'` on Opus. Output uses structured JSON via `betaZodOutputFormat`.
+- **Number-crunch cards** (`type: 'calc'`): templates live in `src/content/calcCards.ts`, and seed cards use the ID `calc:<templateId>`. Always render them through `calcAsMcq(card)`. It draws fresh numbers from the seed `${id}:${reps}:${lapses}`, but still rate the original card. Options must stay distinct after rounding, and `calc.test.ts` checks that.
+- **Glossary:** terms come from concept titles plus `src/content/glossaryAliases.ts`. Render learning text with `GlossaryMd` (not `Md`), passing `exclude={conceptId}` on a concept's own text. `GlossarySheet` is mounted in `Layout` and `LessonPlayer`. Avoid aliases that are common English words (e.g. "deductible").
+- **Missions** (`src/content/missions.ts`) are educational checklists only. They must never ask for account numbers, passwords or other credentials. Writes go through `src/db/missionActions.ts`.
+- **Achievements:** badge rules are pure functions over `Stats` in `src/content/achievements.ts`. `awardXp` and `addTransaction` call `scheduleAchievementCheck()`; call it after any new action a badge depends on. Never delete or rename badge IDs, because they're stored.
+- **Life Simulator:** `src/lib/sim.ts` is pure and seeded; the page state lives in localStorage (`finquest.simGame`) so a game survives reloads. `saveSimRun` stores the run and awards XP at most once per day.
+- **Dexie schema v3** added `missionProgress`, `achievements` and `simRuns`. They're in the `backup.ts` table list, so they sync. Any new table must be added there too.
+- **Offline mode (PWA):** `vite-plugin-pwa` (config in `vite.config.ts`, registration in `src/app/pwa.ts`) precaches every built asset. It only runs in production builds, never in `npm run dev`. New pages must stay lazy-loaded so they're precached as separate chunks. AI calls throw `OfflineError` when offline, and `describeAiError` turns it into a friendly message. iOS only enables service workers over HTTPS (so it works on Vercel, not on the LAN address).
 - **Content is US-specific.** Contribution limits are 2026 IRS figures and need yearly updates in `concepts.ts`. The app stores links to the Bogleheads and r/personalfinance wikis; it never scrapes them.
 
 ## Styling (Tailwind v4, tokens in `src/index.css`)
