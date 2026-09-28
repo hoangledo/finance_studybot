@@ -12,6 +12,7 @@ import type { Concept, StudyCard } from '../../types'
 import { burst } from '../gamify/fx'
 import { SwipeDeck } from './SwipeDeck'
 import { useReviewSession } from './useReviewSession'
+import { calcAsMcq } from '../../lib/calc'
 import { play } from '../gamify/sounds'
 import { Cappy } from '../../components/mascot/Cappy'
 import { pick } from '../../components/mascot/lines'
@@ -77,6 +78,8 @@ export function ReviewPage() {
     )
 
   const card = queue[0]
+  // Number-crunch cards render as multiple choice with numbers generated for this review.
+  const shown = calcAsMcq(card)
   return (
     <div className="pt-safe mx-auto max-w-2xl">
       <div className="mb-3 flex items-center gap-2">
@@ -117,8 +120,8 @@ export function ReviewPage() {
       {style === 'swipe' ? (
         <>
           <SwipeDeck
-            card={card}
-            nextCard={queue[1]}
+            card={shown}
+            nextCard={queue[1] && calcAsMcq(queue[1])}
             concept={conceptById[card.conceptId]}
             onRate={(g) => rate(card, g)}
             onUndo={undo}
@@ -143,7 +146,7 @@ export function ReviewPage() {
               exit={{ opacity: 0, x: -60 }}
               transition={{ duration: 0.2 }}
             >
-              <ReviewCard card={card} concept={conceptById[card.conceptId]} onRate={(g) => rate(card, g)} />
+              <ReviewCard card={shown} concept={conceptById[card.conceptId]} onRate={(g) => rate(card, g)} />
             </motion.div>
           </AnimatePresence>
           <div className="mt-6 flex items-center justify-center gap-3 text-xs text-muted">

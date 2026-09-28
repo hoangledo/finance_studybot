@@ -1,3 +1,4 @@
+import { CALC_TEMPLATES } from '../content/calcCards'
 import { DEFAULT_CATEGORIES } from '../content/categories'
 import { SEED_CONCEPTS, SEED_EDGES } from '../content/concepts'
 import { newFsrsCard } from '../lib/srs'
@@ -5,7 +6,7 @@ import type { Concept, Edge, StudyCard } from '../types'
 import { DEFAULT_PROFILE, type FinDB } from './db'
 
 /** Bump when seed content changes; new seed concepts/cards are merged in without touching user progress. */
-export const SEED_VERSION = 2
+export const SEED_VERSION = 3
 
 export function buildSeed(now = Date.now()) {
   const concepts: Concept[] = SEED_CONCEPTS.map((c) => ({
@@ -31,6 +32,20 @@ export function buildSeed(now = Date.now()) {
       createdAt: now,
     })),
   )
+  // Number-crunch cards: one per template, fresh numbers generated at review time.
+  for (const t of CALC_TEMPLATES)
+    cards.push({
+      id: `calc:${t.id}`,
+      conceptId: t.conceptId,
+      type: 'calc',
+      template: t.id,
+      front: t.title,
+      back: 'Fresh numbers every review — worked answer shown after you choose.',
+      fsrs: newFsrsCard(new Date(now)),
+      locked: true,
+      isSeed: true,
+      createdAt: now,
+    })
   const edges: Edge[] = SEED_EDGES.map(([from, to, type]) => ({ id: `${from}>${to}`, from, to, type }))
   return { concepts, cards, edges }
 }
@@ -45,7 +60,9 @@ export async function ensureSeeded(db: FinDB) {
     const existingCards = new Set(await db.cards.toCollection().primaryKeys())
     const existingEdges = new Set(await db.edges.toCollection().primaryKeys())
     await db.concepts.bulkPut(concepts.filter((c) => !existingConcepts.has(c.id)))
-    await db.cards.bulkPut(cards.filter((c) => !existingCards.has(c.id)))
+    // New seed cards join unlocked if you're already learning their concept.
+    const learning = new Set((await db.cards.filter((c) => !c.locked).toArray()).map((c) => c.conceptId))
+    await db.cards.bulkPut(cards.filter((c) => !existingCards.has(c.id)).map((c) => (learning.has(c.conceptId) ? { ...c, locked: false } : c)))
     await db.edges.bulkPut(edges.filter((e) => !existingEdges.has(e.id)))
     const existingCategories = new Set(await db.categories.toCollection().primaryKeys())
     await db.categories.bulkPut(DEFAULT_CATEGORIES.filter((c) => !existingCategories.has(c.id)))
