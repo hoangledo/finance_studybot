@@ -71,6 +71,8 @@ export interface ActivityDay {
   maxCombo?: number
   toolsUsed?: number
   questClaimed?: boolean
+  txnsLogged?: number // transactions added by hand today (daily quest)
+  moneyXp?: number // XP earned from logging money today (capped)
 }
 
 export interface Profile {
@@ -106,4 +108,54 @@ export interface Lesson {
   requires: string[]
   conceptIds: string[]
   steps: LessonStep[]
+}
+
+/* ───────── Money tracker ───────── */
+
+export type Bucket = 'need' | 'want' | 'savings'
+export type TxnKind = 'income' | 'expense'
+export type Cadence = 'weekly' | 'biweekly' | 'monthly'
+
+export interface Transaction {
+  id: string // `${recurringId}@${date}` for recurring occurrences
+  date: string // YYYY-MM-DD (local)
+  amountCents: number // always positive; `kind` gives the direction
+  kind: TxnKind
+  categoryId: string
+  bucket?: Bucket // expenses only
+  note: string
+  recurringId?: string
+  createdAt: number
+}
+
+export interface Category {
+  id: string
+  name: string
+  emoji: string
+  kind: TxnKind
+  bucket?: Bucket // default bucket for expenses
+  monthlyLimitCents?: number
+  archived?: boolean
+  isDefault: boolean
+  order: number
+}
+
+export interface Recurring {
+  id: string
+  amountCents: number
+  kind: TxnKind
+  categoryId: string
+  bucket?: Bucket
+  note: string
+  cadence: Cadence
+  startDate: string
+  endDate?: string
+  paused?: boolean
+  skipped?: string[] // occurrence dates the user deleted (never recreate them)
+  createdAt: number
+}
+
+export interface MoneySettings {
+  targets: Record<Bucket, number> // percentages, sum to 100
+  weekStart: 0 | 1 // 0 = Sunday, 1 = Monday
 }

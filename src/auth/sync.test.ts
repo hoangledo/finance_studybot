@@ -51,6 +51,8 @@ describe('account sync', () => {
 
   it('uploads local changes', async () => {
     await dbMod.db.profile.update('me', { xp: 321 })
+    await dbMod.db.transactions.add({ id: 'tx-1', date: '2026-09-01', amountCents: 450000, kind: 'income', categoryId: 'cat-salary', note: 'Pay', createdAt: 1 })
+    await dbMod.db.categories.update('cat-dining', { monthlyLimitCents: 15000 })
     await waitForMutationEvent()
     expect(await mod.flushSync()).toBe(true)
     expect(cloudXp('user-a')).toBe(321)
@@ -64,6 +66,9 @@ describe('account sync', () => {
     const r = await mod.startSync('user-a', () => false)
     expect(r.action).toBe('pull')
     expect((await dbMod.db.profile.get('me'))!.xp).toBe(321)
+    // Money tracker data travels with the account too.
+    expect((await dbMod.db.transactions.get('tx-1'))!.amountCents).toBe(450000)
+    expect((await dbMod.db.categories.get('cat-dining'))!.monthlyLimitCents).toBe(15000)
   })
 
   it('keeps accounts separate', async () => {

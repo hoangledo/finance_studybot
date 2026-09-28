@@ -1,7 +1,19 @@
 import { reviveFsrs } from '../lib/srs'
 import type { FinDB } from './db'
 
-const TABLES = ['concepts', 'edges', 'cards', 'reviewLogs', 'lessonProgress', 'activity', 'profile', 'meta'] as const
+const TABLES = [
+  'concepts',
+  'edges',
+  'cards',
+  'reviewLogs',
+  'lessonProgress',
+  'activity',
+  'profile',
+  'meta',
+  'transactions',
+  'categories',
+  'recurring',
+] as const
 
 export interface Backup {
   app: 'finquest'

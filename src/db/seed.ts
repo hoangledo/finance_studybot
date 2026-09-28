@@ -1,10 +1,11 @@
+import { DEFAULT_CATEGORIES } from '../content/categories'
 import { SEED_CONCEPTS, SEED_EDGES } from '../content/concepts'
 import { newFsrsCard } from '../lib/srs'
 import type { Concept, Edge, StudyCard } from '../types'
 import { DEFAULT_PROFILE, type FinDB } from './db'
 
 /** Bump when seed content changes; new seed concepts/cards are merged in without touching user progress. */
-export const SEED_VERSION = 1
+export const SEED_VERSION = 2
 
 export function buildSeed(now = Date.now()) {
   const concepts: Concept[] = SEED_CONCEPTS.map((c) => ({
@@ -38,7 +39,7 @@ export async function ensureSeeded(db: FinDB) {
   const v = await db.meta.get('seedVersion')
   if (v && (v.value as number) >= SEED_VERSION) return
   const { concepts, cards, edges } = buildSeed()
-  await db.transaction('rw', [db.concepts, db.cards, db.edges, db.profile, db.meta], async () => {
+  await db.transaction('rw', [db.concepts, db.cards, db.edges, db.profile, db.meta, db.categories], async () => {
     // Only add what's missing so existing progress is preserved on content upgrades.
     const existingConcepts = new Set(await db.concepts.toCollection().primaryKeys())
     const existingCards = new Set(await db.cards.toCollection().primaryKeys())
@@ -46,6 +47,8 @@ export async function ensureSeeded(db: FinDB) {
     await db.concepts.bulkPut(concepts.filter((c) => !existingConcepts.has(c.id)))
     await db.cards.bulkPut(cards.filter((c) => !existingCards.has(c.id)))
     await db.edges.bulkPut(edges.filter((e) => !existingEdges.has(e.id)))
+    const existingCategories = new Set(await db.categories.toCollection().primaryKeys())
+    await db.categories.bulkPut(DEFAULT_CATEGORIES.filter((c) => !existingCategories.has(c.id)))
     if (!(await db.profile.get('me'))) await db.profile.put(DEFAULT_PROFILE)
     await db.meta.put({ key: 'seedVersion', value: SEED_VERSION })
   })

@@ -39,6 +39,7 @@ export function SettingsPage() {
   const doImport = async (file: File) => {
     try {
       await importAll(db, JSON.parse(await file.text()))
+      await ensureSeeded(db) // older backups may predate newer built-in content (e.g. money categories)
       toast({ kind: 'info', title: 'Backup restored' })
     } catch (e) {
       toast({ kind: 'error', title: 'Import failed', body: e instanceof Error ? e.message : String(e) })
