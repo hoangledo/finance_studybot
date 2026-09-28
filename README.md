@@ -8,6 +8,7 @@ A gamified web app for learning US personal finance and Bogleheads-style investi
 - **Library**: add your own concepts (press `N` anywhere), with auto-generated cards and links into the map.
 - **My Money**: log real income and expenses, sorted into needs, wants and savings. Includes weekly, monthly and yearly views; your split compared to your targets (default 50/30/20); category limits with warnings; recurring items (salary, rent, subscriptions); and a 6-period trend.
 - **Money Lab**: six calculators: 50/30/20 budget, compound growth, fees, Roth vs Traditional, debt avalanche vs snowball, and years to FI. You can type any value, your inputs are remembered, the debt list is editable, and "Use my numbers" fills them from My Money.
+- **Phones**: a bottom tab bar with a More menu, bottom-sheet dialogs, swipe-first reviews, and a list view for the map. You can install it with "Add to Home Screen" to use it full-screen like an app.
 - **Gamification**: Cappy the capybara mascot reacts as you learn. There are XP and levels, streaks with weekly streak freezes, a daily goal, combos, daily quests with a reward chest, and a customizable avatar whose accessories unlock by level or streak. Sound effects can be muted in Settings.
 - **Optional AI**: paste a Bogleheads or Reddit excerpt and Claude drafts a concept, flashcards, quiz questions, and map links. There is also an "Explain like I'm new" button. It uses your own Anthropic API key, which is stored only in your browser.
 

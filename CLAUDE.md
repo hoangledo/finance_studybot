@@ -76,4 +76,13 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
 - **Dark mode:** toggled with a `.dark` class on `<html>` (`src/app/theme.ts`). Colors must come from tokens so both themes work.
 - **Chart colors:** the `VIZ` palette in `features/widgets/common.tsx` was validated for colorblind separation and contrast against both themes' surfaces. Re-validate it if you change it.
 - **Cappy the mascot** (`components/mascot/Cappy.tsx`) has moods: `idle | happy | cheer | think | oops | sleepy | wave`. His lines live in `components/mascot/lines.ts`. Use him for empty states and reactions.
-- **Layout:** every page must work at 390px width. The right rail only shows at `lg` and up, so anything important in it also needs a mobile spot (for example `QuestsCard` on Home).
+- **Layout:** every page must work from 320px to tablet. The right rail only shows at `lg` and up, so anything important in it also needs a phone spot. On phones, the More sheet (`src/app/MoreSheet.tsx`) holds quests and streak.
+- **Phones (`src/lib/device.ts` has `usePhone`, `useTouch`, `useKeyboardInset`):**
+  - `Modal` becomes a bottom sheet on phones (drag handle, keyboard-safe, safe areas). Use it for every pop-up.
+  - Tap targets are at least 40px (aim for 44px).
+  - Never hide controls behind hover. Use the `reveal-on-hover` class, which is visible on touch, hover-revealed with a mouse.
+  - Every drag interaction needs a tap alternative: rank ↑ ↓ buttons, Map "Link to…".
+  - Keyboard hints go in `kbd` or `.kbd-hint`, which are hidden on touch.
+  - Full-screen flows set focus mode (`useUi().setFocus`) to hide the header and bottom nav.
+  - Use `pt-safe` and `env(safe-area-inset-*)` for the notch and home bar. In Tailwind arbitrary values, write `calc()` spaces as `_`.
+- **Installable app:** `public/manifest.webmanifest` plus the icons in `public/`, and meta tags in `index.html`.
