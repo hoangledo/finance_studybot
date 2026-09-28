@@ -1,6 +1,6 @@
 /** Daily quests: three per day, chosen deterministically from the date so they stay put all day. */
 
-export type QuestKind = 'xp' | 'lesson' | 'reviews' | 'combo' | 'concept' | 'tool'
+export type QuestKind = 'xp' | 'lesson' | 'reviews' | 'combo' | 'concept' | 'tool' | 'money'
 
 export interface Quest {
   kind: QuestKind
@@ -16,6 +16,7 @@ export interface QuestInputs {
   maxCombo: number
   concepts: number
   tools: number
+  txns: number
 }
 
 export const QUEST_BONUS_XP = 25
@@ -26,6 +27,7 @@ const POOL: Omit<Quest, 'title'>[] = [
   { kind: 'combo', target: 5, icon: '⚡' },
   { kind: 'concept', target: 1, icon: '✍️' },
   { kind: 'tool', target: 1, icon: '🧮' },
+  { kind: 'money', target: 1, icon: '💸' },
 ]
 
 function titleFor(kind: QuestKind, target: number) {
@@ -42,6 +44,8 @@ function titleFor(kind: QuestKind, target: number) {
       return 'Add your own concept'
     case 'tool':
       return 'Play with a Money Lab tool'
+    case 'money':
+      return 'Log an expense or income'
   }
 }
 
@@ -76,6 +80,7 @@ export function questProgress(q: Quest, i: QuestInputs) {
     combo: i.maxCombo,
     concept: i.concepts,
     tool: i.tools,
+    money: i.txns,
   }[q.kind]
   return Math.min(q.target, v)
 }

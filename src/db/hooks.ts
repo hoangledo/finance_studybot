@@ -34,6 +34,7 @@ export function useQuests() {
     maxCombo: today.maxCombo ?? 0,
     concepts: extra.concepts,
     tools: today.toolsUsed ?? 0,
+    txns: today.txnsLogged ?? 0,
   }
   return { quests, inputs, claimed: !!today.questClaimed }
 }
