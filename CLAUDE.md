@@ -71,7 +71,7 @@ A gamified app for learning US personal finance and Bogleheads investing. It's a
 - **Life Simulator:** `src/lib/sim.ts` is pure and seeded; the page state lives in localStorage (`finquest.simGame`) so a game survives reloads. `saveSimRun` stores the run and awards XP at most once per day.
 - **Dexie schema v3** added `missionProgress`, `achievements` and `simRuns`. They're in the `backup.ts` table list, so they sync. Any new table must be added there too.
 - **Offline mode (PWA):** `vite-plugin-pwa` (config in `vite.config.ts`, registration in `src/app/pwa.ts`) precaches every built asset. It only runs in production builds, never in `npm run dev`. New pages must stay lazy-loaded so they're precached as separate chunks. AI calls throw `OfflineError` when offline, and `describeAiError` turns it into a friendly message. iOS only enables service workers over HTTPS (so it works on Vercel, not on the LAN address).
-- **Content is US-specific.** Contribution limits are 2026 IRS figures and need yearly updates in `concepts.ts`. The app stores links to the Bogleheads and r/personalfinance wikis; it never scrapes them.
+- **Content is US-specific** except the `global` domain / Unit 8 ("Global Investor"), which covers nonresident aliens and non-US investors (visa tax status, PFIC, FBAR, UCITS ETFs). Contribution limits are 2026 IRS figures and need yearly updates in `concepts.ts`; also review the global figures ($60k nonresident estate exemption, $10k FBAR threshold, 30%/15% dividend withholding). The app stores links to the Bogleheads and r/personalfinance wikis; it never scrapes them.
 
 ## Styling (Tailwind v4, tokens in `src/index.css`)
 - **Colors:** each hue (`brand` mint, `gold`, `sky`, `coral`, `grape`, `danger`) has four variants:
