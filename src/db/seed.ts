@@ -6,7 +6,7 @@ import type { Concept, Edge, StudyCard } from '../types'
 import { DEFAULT_PROFILE, type FinDB } from './db'
 
 /** Bump when seed content changes; new seed concepts/cards are merged in without touching user progress. */
-export const SEED_VERSION = 3
+export const SEED_VERSION = 4
 
 export function buildSeed(now = Date.now()) {
   const concepts: Concept[] = SEED_CONCEPTS.map((c) => ({

@@ -29,6 +29,7 @@ export const DOMAIN_META: Record<Domain, { label: string; color: string; icon: s
   bogleheads: { label: 'Bogleheads Philosophy', color: '#10b981', icon: '🧭' },
   retirement: { label: 'Retirement & Withdrawal', color: '#6366f1', icon: '🏖️' },
   insurance: { label: 'Insurance', color: '#ec4899', icon: '🛡️' },
+  global: { label: 'Global & Non-US Investors', color: '#84cc16', icon: '🌍' },
 }
 
 export const SEED_CONCEPTS: SeedConcept[] = [
@@ -936,6 +937,159 @@ export const SEED_CONCEPTS: SeedConcept[] = [
       ['Main financial perk of an HSA-eligible HDHP?', 'It lets you contribute to an HSA (triple tax advantage), plus usually lower premiums.'],
     ],
   },
+  /* ───────────────────────── Bogleheads: getting started ───────────────────────── */
+  {
+    id: 'bogleheads-getting-started',
+    title: 'Bogleheads start-up kit',
+    domain: 'bogleheads',
+    summary:
+      'The Bogleheads wiki\'s **getting started** path, in order: 1) build the foundation (a budget, an emergency fund, high-interest debt gone), 2) learn the **philosophy**, 3) set concrete goals and time horizons, 4) pick an **asset allocation** you can hold through a crash, 5) implement it with a few low-cost index funds in the right accounts, 6) write it down and **stay the course**.\n\nStuck? The forum has a standard "Asking portfolio questions" template: age, tax bracket, account types, fund options and expense ratios, so helpers can give specific advice.',
+    sources: [bh('Getting started'), bh('Bogleheads investing start-up kit'), bh('Asking portfolio questions')],
+    cards: [
+      ['What comes before investing in the Bogleheads start-up path?', 'The foundation: a budget, an emergency fund, and paying off high-interest debt.'],
+      ['Order the core start-up steps.', 'Foundation → learn the philosophy → set goals → choose an asset allocation → implement with low-cost funds → write it down and stay the course.'],
+      ['Why does the forum ask for a standard "portfolio questions" format?', 'Good advice depends on specifics: age, tax bracket, account types, available funds and their expense ratios.'],
+    ],
+  },
+  {
+    id: 'investment-policy-statement',
+    title: 'Investment policy statement',
+    domain: 'bogleheads',
+    summary:
+      'An **investment policy statement (IPS)** is a one-page written plan: your goals, target asset allocation, which funds go in which accounts, when you rebalance, and **what you will do when markets crash**.\n\nWriting it while calm is the point. In a panic you follow the paper, not your feelings.',
+    sources: [bh('Investment policy statement')],
+    cards: [
+      ['What goes in an investment policy statement?', 'Goals, target allocation, fund/account choices, a rebalancing rule, and your plan for a market crash.'],
+      ['Why write the IPS down before you need it?', 'It is made with a calm head, so it keeps you from panic-selling or chasing performance later.'],
+    ],
+  },
+
+  /* ───────────────────────── Global & non-US investors ───────────────────────── */
+  {
+    id: 'tax-residency',
+    title: 'Tax residency (resident vs nonresident alien)',
+    domain: 'global',
+    summary:
+      'US tax rules for non-citizens depend on your **tax residency**, not your visa. A green card holder or someone passing the **substantial presence test** (roughly 183+ days over a 3-year weighted count) is a **resident alien**, taxed like a citizen. Everyone else is a **nonresident alien**.\n\nStudents on F-1 (and J-1) are "exempt individuals": their days don\'t count toward the test for **5 calendar years**, so most F-1 students are nonresidents at first. Each year they file **Form 8843** even with zero income. Nonresidents generally can\'t take the standard deduction and file Form 1040-NR.\n\n*Education, not tax advice. Your school\'s international office and IRS Publication 519 are the authorities.*',
+    sources: ['https://www.irs.gov/publications/p519', bh('Nonresident alien')],
+    cards: [
+      ['Resident vs nonresident alien: what decides it?', 'A green card or the substantial presence test (about 183 weighted days over 3 years). Otherwise you are a nonresident alien.'],
+      ['For how long are F-1 students\' days excluded from the substantial presence test?', 'Usually 5 calendar years; students count as "exempt individuals" during that time.'],
+      ['Which form do F-1 students file each year even with no income?', 'Form 8843.'],
+    ],
+  },
+  {
+    id: 'fica-exemption',
+    title: 'Student FICA exemption',
+    domain: 'global',
+    summary:
+      '**FICA** is the Social Security + Medicare tax (7.65% of pay). Nonresident students on F-1, J-1 or M-1 are **exempt** on work their status allows: on-campus jobs, CPT, and OPT.\n\nThe exemption ends when you become a **resident alien** (typically after 5 calendar years) or change status (e.g. to H-1B). If an employer withholds FICA by mistake, ask them to refund it first; otherwise, claim it from the IRS.',
+    sources: ['https://www.irs.gov/individuals/international-taxpayers/foreign-student-liability-for-social-security-and-medicare-taxes'],
+    cards: [
+      ['Do nonresident F-1 students on OPT pay FICA?', 'No. Authorized student work (on-campus, CPT, OPT) is exempt while they are nonresident aliens.'],
+      ['When does the student FICA exemption usually end?', 'When you become a resident alien (typically after 5 calendar years) or change to a non-student status such as H-1B.'],
+    ],
+  },
+  {
+    id: 'tax-treaty',
+    title: 'Tax treaties & W-8BEN',
+    domain: 'global',
+    summary:
+      'The US has income tax **treaties** with many countries. A treaty may exempt some student wages or scholarships, and lower the tax on dividends.\n\nBrokers and banks ask which kind of person you are: **W-9** for US persons (citizens and resident aliens), **W-8BEN** for non-US persons. Nonresidents have **30%** withheld from US dividends by default, or less if a treaty applies. Keep your form up to date when your residency changes.',
+    sources: ['https://www.irs.gov/individuals/international-taxpayers/tax-treaties', bh('Nonresident alien')],
+    cards: [
+      ['W-9 vs W-8BEN?', 'W-9 is for US persons (including resident aliens). W-8BEN is for non-US persons, and it claims any treaty benefits.'],
+      ['Default US withholding on dividends paid to a nonresident?', '30%, reduced if your country has a tax treaty with the US.'],
+    ],
+  },
+  {
+    id: 'visa-retirement-accounts',
+    title: '401(k) & IRA on a visa',
+    domain: 'global',
+    summary:
+      'A visa doesn\'t bar you from retirement accounts. With **earned income** you can use a 401(k), and at least take the **employer match**: it\'s an instant return even if you leave. IRAs also only need earned income.\n\n**If you leave the US** you can usually **keep the accounts invested** and withdraw later. Withdrawing early costs income tax plus the **10% penalty**, and nonresidents face withholding (often 30%, or less under a treaty). Traditional (pre-tax) contributions often suit people who may leave: you skip US tax now and may pay a lower rate later. Some US brokers restrict accounts for people with non-US addresses, so check before you move.',
+    sources: [bh('Nonresident alien'), bh('401(k)'), 'https://www.irs.gov/publications/p519'],
+    cards: [
+      ['Should someone who may leave the US in 3 years still take the 401(k) match?', 'Yes. The match is free money; even after penalties on an early withdrawal it usually comes out ahead, and you can leave the account invested.'],
+      ['What happens to your 401(k)/IRA if you leave the US?', 'Usually it can stay invested. Early withdrawals mean income tax plus the 10% penalty, and nonresident withholding.'],
+      ['Why can Traditional contributions suit someone who might leave?', 'They skip US tax at today\'s rate; withdrawals later as a nonresident may be taxed at a lower (treaty) rate.'],
+    ],
+  },
+  {
+    id: 'pfic',
+    title: 'PFIC (foreign fund trap)',
+    domain: 'global',
+    summary:
+      'Once you are a **US person for tax** (citizen, green card holder or resident alien), almost any **non-US mutual fund or ETF**, including your home country\'s funds and Ireland-domiciled ETFs, counts as a **PFIC** (passive foreign investment company). PFICs get punitive tax treatment and a yearly Form 8621 per fund.\n\nThe rule for US persons: **hold US-domiciled funds** (e.g. US-listed total market and total international ETFs). If you\'re about to become a US tax resident, review home-country funds *before* the switch.',
+    sources: [bh('Passive foreign investment company'), bh('Non-US investor')],
+    cards: [
+      ['What is a PFIC in plain terms?', 'A non-US fund held by a US tax person; it is taxed punitively and needs Form 8621 each year.'],
+      ['A US tax resident wants a world index fund. US-domiciled or Ireland-domiciled?', 'US-domiciled. For a US person, an Ireland-domiciled ETF is a PFIC.'],
+      ['When should a soon-to-be US resident review home-country funds?', 'Before becoming a US tax resident, because from then on they count as PFICs.'],
+    ],
+  },
+  {
+    id: 'fbar-fatca',
+    title: 'FBAR & FATCA reporting',
+    domain: 'global',
+    summary:
+      'US persons must **report foreign financial accounts**: home-country bank accounts count too.\n\n- **FBAR** (FinCEN 114): required if your foreign accounts **together top $10,000 at any time** in the year.\n- **FATCA / Form 8938**: filed with your tax return above higher thresholds.\n\nReporting doesn\'t mean you owe tax, but penalties for skipping it are steep. Nonresident aliens don\'t file these; they apply once you are a resident alien.',
+    sources: ['https://www.irs.gov/businesses/small-businesses-self-employed/report-of-foreign-bank-and-financial-accounts-fbar', bh('Non-US investor')],
+    cards: [
+      ['When must a US person file an FBAR?', 'When their foreign financial accounts together exceed $10,000 at any time during the year.'],
+      ['Does filing an FBAR mean you owe tax on the account?', 'No. It is a report; tax depends on the income. But skipping it can bring large penalties.'],
+    ],
+  },
+  {
+    id: 'us-estate-tax-nra',
+    title: 'US estate tax for nonresidents',
+    domain: 'global',
+    summary:
+      'US citizens and residents have a huge estate tax exemption. **Nonresident aliens get only $60,000** for **US-situs assets**, which include shares of US companies and **US-domiciled ETFs and funds**, even if held from abroad.\n\nAbove $60k, heirs could face US estate tax up to 40%. That\'s the main reason the Bogleheads non-US guidance steers people living abroad away from US-domiciled funds.',
+    sources: [bh('Nonresident alien'), bh('Non-US investor')],
+    cards: [
+      ['US estate tax exemption for a nonresident alien\'s US-situs assets?', 'Only $60,000.'],
+      ['Are US-domiciled ETFs US-situs assets for a nonresident?', 'Yes, so large holdings can expose heirs to US estate tax.'],
+    ],
+  },
+  {
+    id: 'ucits-etfs',
+    title: 'Ireland-domiciled UCITS ETFs',
+    domain: 'global',
+    summary:
+      'The typical Boglehead portfolio for a **non-US person** uses **Ireland-domiciled UCITS ETFs** (e.g. an all-world or developed + emerging pair) bought through a local or international broker.\n\nWhy Ireland: the Ireland–US treaty cuts US dividend withholding inside the fund to **15%** (vs 30% for many nonresidents holding US funds), there\'s **no US estate tax** exposure, and no US paperwork. **Accumulating** share classes reinvest dividends; **distributing** ones pay them out.\n\nThe philosophy is the same: global, index, low cost. Only the wrapper changes. (For US persons these funds are PFICs, so they are for the non-US path only.)',
+    sources: [bh('Non-US investor'), bh('Ireland domiciled ETFs')],
+    cards: [
+      ['Why do non-US Bogleheads favor Ireland-domiciled ETFs?', '15% treaty withholding on US dividends (vs up to 30%), no US estate tax exposure, and simple paperwork.'],
+      ['Accumulating vs distributing share class?', 'Accumulating reinvests dividends inside the fund; distributing pays them out to you.'],
+      ['Should a US tax resident buy Ireland-domiciled ETFs?', 'No. For a US person they are PFICs.'],
+    ],
+  },
+  {
+    id: 'currency-risk',
+    title: 'Currency risk & home bias',
+    domain: 'global',
+    summary:
+      'Match your **safe money to the currency you\'ll spend**. The emergency fund and bonds should be in the currency of the country where you\'ll likely live and retire. Stocks can stay **globally diversified** whatever your home is.\n\n**Home bias** means overweighting your own country\'s stocks. A small home market (most countries besides the US) is a thin slice of the world, so a global index fund is the Boglehead default.\n\nUndecided? Keep stocks global, and keep bonds and cash split or tilted toward where you think you\'ll end up.',
+    sources: [bh('Domestic/International'), bh('Non-US investor')],
+    cards: [
+      ['Which part of a portfolio should match the currency you will spend?', 'The safe part: emergency fund and bonds. Stocks can stay globally diversified.'],
+      ['What is home bias?', 'Overweighting stocks from your own country relative to its share of the world market.'],
+    ],
+  },
+  {
+    id: 'leaving-the-us',
+    title: 'Stay-or-go money checklist',
+    domain: 'global',
+    summary:
+      'Undecided about staying? Build a plan that works on **either path**:\n\n- **Accounts:** take the 401(k) match; if you leave, keep accounts invested rather than cashing out, and confirm your broker allows a foreign address.\n- **Tax forms:** update W-9 ↔ W-8BEN when your residency changes.\n- **Timing:** becoming a US resident brings PFIC and FBAR rules; becoming a nonresident brings the $60k estate tax limit on US funds.\n- **Portfolio:** the same global index mix, held in the fund wrapper that suits your current tax status.',
+    sources: [bh('Non-US investor'), bh('Nonresident alien'), 'https://www.irs.gov/publications/p519'],
+    cards: [
+      ['Leaving the US with a 401(k): cash out or keep it invested?', 'Usually keep it invested. Cashing out early brings income tax, the 10% penalty and withholding.'],
+      ['What changes when you become a US tax resident?', 'W-9 instead of W-8BEN, PFIC rules for foreign funds, and FBAR/FATCA reporting of foreign accounts.'],
+      ['What changes when you move abroad and become a nonresident?', 'W-8BEN, dividend withholding, and only a $60k estate tax exemption on US-domiciled funds.'],
+    ],
+  },
 ]
 
 export type SeedEdge = [from: string, to: string, type: 'prereq' | 'partOf' | 'related' | 'contrasts' | 'example']
@@ -1039,4 +1193,30 @@ export const SEED_EDGES: SeedEdge[] = [
   ['term-life', 'whole-life', 'contrasts'],
   ['disability-insurance', 'emergency-fund', 'related'],
   ['hdhp', 'emergency-fund', 'related'],
+  // Getting started
+  ['bogleheads-philosophy', 'bogleheads-getting-started', 'prereq'],
+  ['bogleheads-getting-started', 'investment-policy-statement', 'related'],
+  ['asset-allocation', 'investment-policy-statement', 'partOf'],
+  ['stay-the-course', 'investment-policy-statement', 'related'],
+  ['emergency-fund', 'bogleheads-getting-started', 'prereq'],
+  // Global & non-US
+  ['marginal-tax-rate', 'tax-residency', 'prereq'],
+  ['tax-residency', 'fica-exemption', 'related'],
+  ['tax-residency', 'tax-treaty', 'related'],
+  ['standard-deduction', 'tax-residency', 'related'],
+  ['401k', 'visa-retirement-accounts', 'related'],
+  ['roth-ira', 'visa-retirement-accounts', 'related'],
+  ['traditional-vs-roth', 'visa-retirement-accounts', 'related'],
+  ['tax-residency', 'pfic', 'prereq'],
+  ['tax-residency', 'fbar-fatca', 'prereq'],
+  ['pfic', 'ucits-etfs', 'contrasts'],
+  ['three-fund-portfolio', 'ucits-etfs', 'contrasts'],
+  ['us-estate-tax-nra', 'ucits-etfs', 'related'],
+  ['tax-treaty', 'ucits-etfs', 'related'],
+  ['international-stocks', 'currency-risk', 'related'],
+  ['bonds', 'currency-risk', 'related'],
+  ['leaving-the-us', 'rollover', 'related'],
+  ['visa-retirement-accounts', 'leaving-the-us', 'partOf'],
+  ['pfic', 'leaving-the-us', 'partOf'],
+  ['us-estate-tax-nra', 'leaving-the-us', 'partOf'],
 ]

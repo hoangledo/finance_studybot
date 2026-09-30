@@ -12,6 +12,7 @@ export type Domain =
   | 'bogleheads'
   | 'retirement'
   | 'insurance'
+  | 'global'
 
 export interface Concept {
   id: string

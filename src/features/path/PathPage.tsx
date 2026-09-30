@@ -30,6 +30,7 @@ const UNIT_TONES = [
   { bg: 'bg-gold', edge: 'border-gold-edge', text: 'text-on-color' },
   { bg: 'bg-sky', edge: 'border-sky-edge', text: 'text-white' },
   { bg: 'bg-brand', edge: 'border-brand-edge', text: 'text-on-color' },
+  { bg: 'bg-grape', edge: 'border-grape-edge', text: 'text-white' },
 ]
 
 // Trail geometry (px)
